@@ -8,18 +8,13 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
     <nav class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
-            <a href="#" class="text-xl font-bold">Office Assistant</a>
-            <div>
-                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Home</a>
-                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">About</a>
-                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Contact</a>
-            </div>
+            <a href="/" class="text-xl font-bold">Office Assistant</a>
         </div>
     </nav>
-    <div class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 py-8 flex-grow">
         <h1 class="text-3xl font-bold mb-4">Welcome to Office Assistant</h1>
         <p class="mb-4">This is the main page of the Office Assistant application.</p>
         <form action="/upload/" method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
@@ -43,13 +38,10 @@
                 <p>{{ error }}</p>
             </div>
         {% endif %}
-    </div>
-    <footer class="bg-white shadow-md mt-8">
+    </main>
+    <footer class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <p>&copy; 2023 Office Assistant. All rights reserved.</p>
-            <div>
-                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Privacy Policy</a>
-                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Terms of Service</a>
+            <div class="flex space-x-4">
             </div>
         </div>
     </footer>
