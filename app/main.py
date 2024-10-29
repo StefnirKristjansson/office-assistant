@@ -7,11 +7,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes import auth
+from app.routes.index import router as index_router
 
 load_dotenv()
 
 app = FastAPI()
 app.include_router(auth.router)
+app.include_router(index_router)
 
 
 if __name__ == "__main__":  # pragma: no cover
