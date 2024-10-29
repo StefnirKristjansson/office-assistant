@@ -6,6 +6,8 @@ import os
 from tempfile import NamedTemporaryFile
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from datetime import datetime
+import json
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -49,11 +51,18 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 
     try:
         openai_response = await send_text_to_openai(text)
-        output_file_path = create_docx_from_text(openai_response)
+        # the openai_response is a string, so we need to convert it to a dictionary
+        openai_response = json.loads(openai_response)
+
+        output_file_path = create_docx_from_json(openai_response)
+        # create a timestamp in human readable format
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = "OpenAI_Response_" + timestamp + ".docx"
+
         return FileResponse(
             output_file_path,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename="OpenAI_Response.docx",
+            filename=filename,
         )
     except Exception as e:
         return templates.TemplateResponse(
@@ -96,7 +105,7 @@ async def send_text_to_openai(text: str) -> str:
         response_format={
             "type": "json_schema",
             "json_schema": {
-                "name": "minnisblað",
+                "name": "minnisblad",  # Updated name
                 "strict": True,
                 "schema": {
                     "type": "object",
@@ -127,12 +136,18 @@ async def send_text_to_openai(text: str) -> str:
                                 "required": ["chapter_title", "content"],
                                 "additionalProperties": False,
                             },
-                            "Samantekt": {
-                                "type": "string",
-                                "description": "Samantekt minnisblaðsins.",
+                        },
+                        "Samantekt": {
+                            "type": "string",
+                            "description": "Samantekt minnisblaðsins.",
                         },
                     },
-                    "required": ["title", "chapters"],
+                    "required": [
+                        "titill",
+                        "kaflar",
+                        "Inngangur",
+                        "Samantekt",
+                    ],  # Added required fields
                     "additionalProperties": False,
                 },
             },
@@ -142,14 +157,24 @@ async def send_text_to_openai(text: str) -> str:
     return completion.choices[0].message.content
 
 
-def create_docx_from_text(text: str) -> str:
+def create_docx_from_json(response_json: dict) -> str:
     # Create a new Word document
     doc = Document()
 
-    # Split the text into paragraphs based on double newlines
-    paragraphs = text.split("\n\n")
-    for para in paragraphs:
-        doc.add_paragraph(para.strip())
+    # Add the title
+    doc.add_heading(response_json.get("titill", "Titill Ekki Tiltækur"), level=1)
+
+    # Add the introduction
+    doc.add_paragraph(response_json.get("Inngangur", ""))
+
+    # Add chapters
+    for chapter in response_json.get("kaflar", []):
+        doc.add_heading(chapter.get("chapter_title", "Kafli"), level=2)
+        doc.add_paragraph(chapter.get("content", ""))
+
+    # Add the summary
+    doc.add_heading("Samantekt", level=2)
+    doc.add_paragraph(response_json.get("Samantekt", ""))
 
     # Save the document to a temporary file
     temp_file = NamedTemporaryFile(delete=False, suffix=".docx")
