@@ -1,49 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- [Same head content as before] -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Office Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
+    <!-- Include Axios for making AJAX requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+    <!-- Navigation bar -->
     <nav class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <a href="/" class="text-xl font-bold">Office Assistant</a>
         </div>
     </nav>
+
+    <!-- Main content -->
     <main class="container mx-auto px-4 py-8 flex-grow">
         <h1 class="text-3xl font-bold mb-4">Welcome to Office Assistant</h1>
         <p class="mb-4">This is the main page of the Office Assistant application.</p>
-        <form action="/upload/" method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+        <form id="upload-form" class="bg-white p-6 rounded-lg shadow-md">
             <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Choose a .docx file to upload:</label>
             <input type="file" name="file" id="file" accept=".docx" class="mb-4">
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md inline-flex items-center">
                 <i class="fas fa-upload mr-2"></i> Upload
             </button>
-            <div id="progress-bar" class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
-                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
-            </div>
         </form>
-        {% if openai_response %}
-            <div class="mt-4 p-4 bg-green-100 text-green-800 rounded-lg">
-                <h2 class="text-xl font-bold mb-2">OpenAI Response:</h2>
-                <p>{{ openai_response }}</p>
-            </div>
-        {% elif error %}
-            <div class="mt-4 p-4 bg-red-100 text-red-800 rounded-lg">
-                <h2 class="text-xl font-bold mb-2">Error:</h2>
-                <p>{{ error }}</p>
-            </div>
-        {% endif %}
+        <!-- Error message container -->
+        <div id="error-message" class="mt-4 p-4 bg-red-100 text-red-800 rounded-lg hidden">
+            <h2 class="text-xl font-bold mb-2">Error:</h2>
+            <p id="error-text"></p>
+        </div>
     </main>
+
+    <!-- Footer -->
     <footer class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <p class="text-sm text-gray-600">&copy; 2023 Office Assistant. All rights reserved.</p>
             <div class="flex space-x-4">
+                <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-gray-600 hover:text-gray-800"><i class="fab fa-linkedin"></i></a>
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript to handle the file upload and download -->
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const fileInput = document.getElementById('file');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await axios.post('/upload/', formData, {
+                    responseType: 'blob', // Important for handling binary data
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                // Create a blob from the response data
+                const blob = new Blob([response.data], { type: response.headers['content-type'] });
+
+                // Create a link to download the file
+                const downloadUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = 'OpenAI_Response.docx'; // The name of the downloaded file
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(downloadUrl);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('error-message').classList.remove('hidden');
+                if (error.response && error.response.data) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        document.getElementById('error-text').innerText = reader.result;
+                    };
+                    reader.readAsText(error.response.data);
+                } else {
+                    document.getElementById('error-text').innerText = 'An unexpected error occurred.';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
