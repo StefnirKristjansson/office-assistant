@@ -12,5 +12,12 @@
         <input type="file" name="file" accept=".docx">
         <button type="submit">Upload</button>
     </form>
+    {% if openai_response %}
+        <h2>OpenAI Response:</h2>
+        <p>{{ openai_response }}</p>
+    {% elif error %}
+        <h2>Error:</h2>
+        <p>{{ error }}</p>
+    {% endif %}
 </body>
 </html>
