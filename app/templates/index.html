@@ -4,20 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Office Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-    <h1>Welcome to Office Assistant</h1>
-    <p>This is the main page of the Office Assistant application.</p>
-    <form action="/upload/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".docx">
-        <button type="submit">Upload</button>
-    </form>
-    {% if openai_response %}
-        <h2>OpenAI Response:</h2>
-        <p>{{ openai_response }}</p>
-    {% elif error %}
-        <h2>Error:</h2>
-        <p>{{ error }}</p>
-    {% endif %}
+<body class="bg-gray-100 text-gray-800">
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold">Office Assistant</a>
+            <div>
+                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Home</a>
+                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">About</a>
+                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Welcome to Office Assistant</h1>
+        <p class="mb-4">This is the main page of the Office Assistant application.</p>
+        <form action="/upload/" method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+            <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Choose a .docx file to upload:</label>
+            <input type="file" name="file" id="file" accept=".docx" class="mb-4">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md inline-flex items-center">
+                <i class="fas fa-upload mr-2"></i> Upload
+            </button>
+            <div id="progress-bar" class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+        </form>
+        {% if openai_response %}
+            <div class="mt-4 p-4 bg-green-100 text-green-800 rounded-lg">
+                <h2 class="text-xl font-bold mb-2">OpenAI Response:</h2>
+                <p>{{ openai_response }}</p>
+            </div>
+        {% elif error %}
+            <div class="mt-4 p-4 bg-red-100 text-red-800 rounded-lg">
+                <h2 class="text-xl font-bold mb-2">Error:</h2>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+    </div>
+    <footer class="bg-white shadow-md mt-8">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <p>&copy; 2023 Office Assistant. All rights reserved.</p>
+            <div>
+                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Privacy Policy</a>
+                <a href="#" class="text-gray-600 hover:text-gray-800 mx-2">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
