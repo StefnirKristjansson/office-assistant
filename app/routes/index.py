@@ -1,19 +1,26 @@
 from fastapi import APIRouter, Request, File, UploadFile, HTTPException
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse
 from docx import Document
 from dotenv import load_dotenv
 import os
-from openai import OpenAI
+from tempfile import NamedTemporaryFile
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from datetime import datetime
+import json
 
 templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter()
 
+load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Set the OpenAI API key globally
+from openai import OpenAI
+
 OpenAI.api_key = openai_api_key
+client = OpenAI()
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -36,16 +43,26 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     text = extract_text_from_docx(file.file)
 
     word_count = len(text.split())
-    if word_count > 200000000000 or word_count < 1:
+    if word_count > 5000 or word_count < 10:
         raise HTTPException(
             status_code=400,
-            detail="The document must contain between 1 and 2000 words.",
+            detail="The document must contain between 10 and 5000 words.",
         )
 
     try:
         openai_response = await send_text_to_openai(text)
-        return templates.TemplateResponse(
-            "index.html", {"request": request, "openai_response": openai_response}
+        # the openai_response is a string, so we need to convert it to a dictionary
+        openai_response = json.loads(openai_response)
+
+        output_file_path = create_docx_from_json(openai_response)
+        # create a timestamp in human readable format
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = "OpenAI_Response_" + timestamp + ".docx"
+
+        return FileResponse(
+            output_file_path,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            filename=filename,
         )
     except Exception as e:
         return templates.TemplateResponse(
@@ -62,13 +79,7 @@ def extract_text_from_docx(file):
 
 
 async def send_text_to_openai(text: str) -> str:
-    from openai import OpenAI
-
-    load_dotenv()
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-
-    OpenAI.api_key = openai_api_key
-    client = OpenAI()
+    # Using the OpenAI client as per your original code
     completion = client.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -77,7 +88,7 @@ async def send_text_to_openai(text: str) -> str:
                 "content": [
                     {
                         "type": "text",
-                        "text": "Það sem notandin er að senda er mynnisblað til ráðherra aðstoðaðu hann eftir bestu getu og gefðu ráðleggingar hvernig meigi bæta það",
+                        "text": "Notandinn sendir þér texta sem þú átt að breyta í minnisblað. Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best",
                     }
                 ],
             },
@@ -86,7 +97,87 @@ async def send_text_to_openai(text: str) -> str:
                 "content": [{"type": "text", "text": text}],
             },
         ],
+        temperature=1,
+        max_tokens=2048,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "minnisblad",  # Updated name
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "titill": {
+                            "type": "string",
+                            "description": "Titill minnisblaðsins.",
+                        },
+                        "Inngangur": {
+                            "type": "string",
+                            "description": "Inngangur minnisblaðsins.",
+                        },
+                        "kaflar": {
+                            "type": "array",
+                            "description": "Kaflar minnisblaðsins.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "chapter_title": {
+                                        "type": "string",
+                                        "description": "Titill kafla.",
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "Innihald kafla.",
+                                    },
+                                },
+                                "required": ["chapter_title", "content"],
+                                "additionalProperties": False,
+                            },
+                        },
+                        "Samantekt": {
+                            "type": "string",
+                            "description": "Samantekt minnisblaðsins.",
+                        },
+                    },
+                    "required": [
+                        "titill",
+                        "kaflar",
+                        "Inngangur",
+                        "Samantekt",
+                    ],  # Added required fields
+                    "additionalProperties": False,
+                },
+            },
+        },
     )
     print(completion)
-
     return completion.choices[0].message.content
+
+
+def create_docx_from_json(response_json: dict) -> str:
+    # Create a new Word document
+    doc = Document()
+
+    # Add the title
+    doc.add_heading(response_json.get("titill", "Titill Ekki Tiltækur"), level=1)
+
+    # Add the introduction
+    doc.add_paragraph(response_json.get("Inngangur", ""))
+
+    # Add chapters
+    for chapter in response_json.get("kaflar", []):
+        doc.add_heading(chapter.get("chapter_title", "Kafli"), level=2)
+        doc.add_paragraph(chapter.get("content", ""))
+
+    # Add the summary
+    doc.add_heading("Samantekt", level=2)
+    doc.add_paragraph(response_json.get("Samantekt", ""))
+
+    # Save the document to a temporary file
+    temp_file = NamedTemporaryFile(delete=False, suffix=".docx")
+    doc.save(temp_file.name)
+    temp_file.close()
+    return temp_file.name
