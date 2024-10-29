@@ -1,0 +1,4 @@
+python-dotenv==1.0.1
+uvicorn==0.32.0
+fastapi==0.115.2
+sqlmodel==0.0.22
