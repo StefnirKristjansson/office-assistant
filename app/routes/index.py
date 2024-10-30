@@ -52,7 +52,6 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     try:
         openai_response = await send_text_to_openai(text)
         # the openai_response is a string, so we need to convert it to a dictionary
-        openai_response = json.loads(openai_response)
 
         output_file_path = create_docx_from_json(openai_response)
         # create a timestamp in human readable format
@@ -78,7 +77,7 @@ def extract_text_from_docx(file):
     return "\n".join(text)
 
 
-async def send_text_to_openai(text: str) -> str:
+async def send_text_to_openai(text: str) -> json:
     # Using the OpenAI client as per your original code
     completion = client.chat.completions.create(
         model="gpt-4o",
@@ -154,7 +153,8 @@ async def send_text_to_openai(text: str) -> str:
         },
     )
     print(completion)
-    return completion.choices[0].message.content
+    response = json.loads(completion.choices[0].message.content)
+    return response
 
 
 def create_docx_from_json(response_json: dict) -> str:
