@@ -29,6 +29,7 @@ def test_upload_file_with_mocked_openai(mock_openai_response):
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 )
             },
+            data={"chapters": '["inngangur", "samantekt", "aaetlun"]'},
         )
     assert response.status_code == 200
     assert (
