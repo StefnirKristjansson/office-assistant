@@ -29,7 +29,9 @@ async def read_index(request: Request):
 
 
 @router.post("/upload/")
-async def upload_file(request: Request, file: UploadFile = File(...), chapters: str = Form(...)):
+async def upload_file(
+    request: Request, file: UploadFile = File(...), chapters: str = Form(...)
+):
     if (
         file.content_type
         != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -51,7 +53,8 @@ async def upload_file(request: Request, file: UploadFile = File(...), chapters: 
 
     try:
         selected_chapters = json.loads(chapters)
-        openai_response = await send_text_to_openai(text, selected_chapters)
+        respond_format = create_response_format(selected_chapters)
+        openai_response = await send_text_to_openai(text, respond_format)
         # the openai_response is a string, so we need to convert it to a dictionary
 
         output_file_path = create_docx_from_json(openai_response)
@@ -78,7 +81,7 @@ def extract_text_from_docx(file):
     return "\n".join(text)
 
 
-async def send_text_to_openai(text: str, selected_chapters: list) -> json:
+async def send_text_to_openai(text: str, response_format: dict) -> dict:
     # Using the OpenAI client as per your original code
     messages = [
         {
@@ -86,7 +89,7 @@ async def send_text_to_openai(text: str, selected_chapters: list) -> json:
             "content": [
                 {
                     "type": "text",
-                    "text": "Notandinn sendir þér texta sem þú átt að breyta í minnisblað. Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best",
+                    "text": "Notandinn sendir þér texta sem þú átt að breyta í minnisblað. Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best. Passaðu að hafa kaflanna ekki of stutta ekki hafa fleirri en 2 kafla á blaðsíðu.",
                 }
             ],
         },
@@ -96,11 +99,6 @@ async def send_text_to_openai(text: str, selected_chapters: list) -> json:
         },
     ]
 
-    # Add selected chapters to the system message
-    if selected_chapters:
-        chapter_text = "Notandinn vill að eftirfarandi kaflar séu bættir við: " + ", ".join(selected_chapters)
-        messages[0]["content"].append({"type": "text", "text": chapter_text})
-
     completion = client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
@@ -109,60 +107,88 @@ async def send_text_to_openai(text: str, selected_chapters: list) -> json:
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "minnisblad",  # Updated name
-                "strict": True,
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "titill": {
-                            "type": "string",
-                            "description": "Titill minnisblaðsins.",
-                        },
-                        "Inngangur": {
-                            "type": "string",
-                            "description": "Inngangur minnisblaðsins.",
-                        },
-                        "kaflar": {
-                            "type": "array",
-                            "description": "Kaflar minnisblaðsins.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "chapter_title": {
-                                        "type": "string",
-                                        "description": "Titill kafla.",
-                                    },
-                                    "content": {
-                                        "type": "string",
-                                        "description": "Innihald kafla.",
-                                    },
-                                },
-                                "required": ["chapter_title", "content"],
-                                "additionalProperties": False,
-                            },
-                        },
-                        "Samantekt": {
-                            "type": "string",
-                            "description": "Samantekt minnisblaðsins.",
-                        },
-                    },
-                    "required": [
-                        "titill",
-                        "kaflar",
-                        "Inngangur",
-                        "Samantekt",
-                    ],  # Added required fields
-                    "additionalProperties": False,
-                },
-            },
-        },
+        response_format=response_format,
     )
     print(completion)
     response = json.loads(completion.choices[0].message.content)
     return response
+
+
+def create_response_format(selected_chapters: list) -> dict:
+    base_response = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "minnisblad",  # Updated name
+            "strict": True,
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "titill": {
+                        "type": "string",
+                        "description": "Titill minnisblaðsins.",
+                    },
+                    "kaflar": {
+                        "type": "array",
+                        "description": "Kaflar minnisblaðsins.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "chapter_title": {
+                                    "type": "string",
+                                    "description": "Titill kafla.",
+                                },
+                                "content": {
+                                    "type": "string",
+                                    "description": "Innihald kafla.",
+                                },
+                            },
+                            "required": ["chapter_title", "content"],
+                            "additionalProperties": False,
+                        },
+                    },
+                },
+                "required": [
+                    "titill",
+                    "kaflar",
+                ],
+                "additionalProperties": False,
+            },
+        },
+    }
+    inngangur_description = "Inngangur minnisblaðsins."
+    samantekt_description = "Samantekt minnisblaðsins."
+    aaetlun_description = "Áætlun minnisblaðsins."
+    markmid_description = "Markmið minnisblaðsins."
+
+    if "inngangur" in selected_chapters:
+        base_response["json_schema"]["schema"]["properties"]["Inngangur"] = {
+            "type": "string",
+            "description": inngangur_description,
+        }
+        base_response["json_schema"]["schema"]["required"].append("Inngangur")
+
+    if "samantekt" in selected_chapters:
+        base_response["json_schema"]["schema"]["properties"]["Samantekt"] = {
+            "type": "string",
+            "description": samantekt_description,
+        }
+        base_response["json_schema"]["schema"]["required"].append("Samantekt")
+
+    if "aaetlun" in selected_chapters:
+        base_response["json_schema"]["schema"]["properties"]["Áætlun"] = {
+            "type": "string",
+            "description": aaetlun_description,
+        }
+        base_response["json_schema"]["schema"]["required"].append("Áætlun")
+
+    if "markmid" in selected_chapters:
+        base_response["json_schema"]["schema"]["properties"]["Markmið"] = {
+            "type": "string",
+            "description": markmid_description,
+        }
+        base_response["json_schema"]["schema"]["required"].append("Markmið")
+
+    return base_response
 
 
 def create_docx_from_json(response_json: dict) -> str:
@@ -172,17 +198,30 @@ def create_docx_from_json(response_json: dict) -> str:
     # Add the title
     doc.add_heading(response_json.get("titill", "Titill Ekki Tiltækur"), level=1)
 
-    # Add the introduction
-    doc.add_paragraph(response_json.get("Inngangur", ""))
+    # if there is an introduction, add it to the document
+    if "Inngangur" in response_json:
+        doc.add_heading("Inngangur", level=2)
+        doc.add_paragraph(response_json["Inngangur"])
 
-    # Add chapters
-    for chapter in response_json.get("kaflar", []):
-        doc.add_heading(chapter.get("chapter_title", "Kafli"), level=2)
-        doc.add_paragraph(chapter.get("content", ""))
+    # if there is markmid, add it to the document
+    if "Markmið" in response_json:
+        doc.add_heading("Markmið", level=2)
+        doc.add_paragraph(response_json["Markmið"])
+        
+    if "Áætlun" in response_json:
+        doc.add_heading("Áætlun", level=2)
+        doc.add_paragraph(response_json["Áætlun"])
 
-    # Add the summary
-    doc.add_heading("Samantekt", level=2)
-    doc.add_paragraph(response_json.get("Samantekt", ""))
+    # if there are chapters, add them to the document
+    if "kaflar" in response_json:
+        for chapter in response_json["kaflar"]:
+            doc.add_heading(chapter["chapter_title"], level=2)
+            doc.add_paragraph(chapter["content"])
+
+    # if there is a summary, add it to the document
+    if "Samantekt" in response_json:
+        doc.add_heading("Samantekt", level=2)
+        doc.add_paragraph(response_json["Samantekt"])
 
     # Save the document to a temporary file
     temp_file = NamedTemporaryFile(delete=False, suffix=".docx")
