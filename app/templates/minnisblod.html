@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minnisblod</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+    <!-- Navigation bar -->
+    <nav class="bg-white shadow-md">
+      <div
+        class="container mx-auto px-4 py-2 flex justify-between items-center"
+      >
+        <a href="/" class="text-xl font-bold">Office Assistant</a>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-8 flex-grow">
+      <h1 class="text-3xl font-bold mb-4">Minnisblod</h1>
+      <p class="mb-4">
+        Please enter the bearer token to access this page.
+      </p>
+      <form id="token-form" class="bg-white p-6 rounded-lg shadow-md">
+        <label for="token" class="block text-sm font-medium text-gray-700 mb-2"
+          >Bearer Token:</label
+        >
+        <input
+          type="text"
+          name="token"
+          id="token"
+          class="mb-4 p-2 border border-gray-300 rounded-md w-full"
+        />
+        <button
+          type="submit"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md inline-flex items-center"
+        >
+          <i class="fas fa-key mr-2"></i> Submit
+        </button>
+      </form>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow-md">
+      <div
+        class="container mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <p class="text-sm text-gray-600">
+          &copy; 2023 Office Assistant. All rights reserved.
+        </p>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-600 hover:text-gray-800"
+            ><i class="fab fa-twitter"></i
+          ></a>
+          <a href="#" class="text-gray-600 hover:text-gray-800"
+            ><i class="fab fa-facebook"></i
+          ></a>
+          <a href="#" class="text-gray-600 hover:text-gray-800"
+            ><i class="fab fa-linkedin"></i
+          ></a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

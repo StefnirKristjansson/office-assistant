@@ -37,3 +37,15 @@ def test_upload_file_with_mocked_openai(mock_openai_response):
         == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
     assert "OpenAI_Response" in response.headers["content-disposition"]
+
+
+def test_minnisblod_route_with_valid_token():
+    response = client.get("/minnisblod", headers={"Authorization": "Bearer your_token_here"})
+    assert response.status_code == 200
+    assert "Please enter the bearer token to access this page." in response.text
+
+
+def test_minnisblod_route_with_invalid_token():
+    response = client.get("/minnisblod", headers={"Authorization": "Bearer invalid_token"})
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Invalid or missing token"}
