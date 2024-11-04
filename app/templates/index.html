@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- [Same head content as before] -->
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to Office Assistant</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-      rel="stylesheet"
-    />
+    <!-- Include Tailwind CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <!-- Include Axios for making AJAX requests -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Include Font Awesome for icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
   </head>
-  <body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+  <body class="bg-gray-100 flex flex-col min-h-screen">
     <!-- Navigation bar -->
     <nav class="bg-white shadow-md">
       <div
@@ -28,108 +26,60 @@
 
     <!-- Main content -->
     <main class="container mx-auto px-4 py-8 flex-grow">
-      <h1 class="text-3xl font-bold mb-4">Welcome to Office Assistant</h1>
-      <p class="mb-4">
-        This is the main page of the Office Assistant application.
-      </p>
-      <form id="upload-form" class="bg-white p-6 rounded-lg shadow-md">
-        <!-- Token input field -->
-        <div class="mb-4">
-          <label
-            for="token"
-            class="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Enter your token:
-          </label>
-          <input
-            type="text"
-            id="token"
-            name="token"
-            class="w-full border border-gray-300 p-2 rounded-md"
-            required
-          />
-        </div>
-
-        <!-- File input -->
-        <label for="file" class="block text-sm font-medium text-gray-700 mb-2">
-          Choose a .docx file to upload:
-        </label>
-        <input
-          type="file"
-          name="file"
-          id="file"
-          accept=".docx"
-          class="mb-4"
-          required
-        />
-
-        <!-- Checkboxes for chapters -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Select chapters to include:
-          </label>
-          <div>
-            <input
-              type="checkbox"
-              id="inngangur"
-              name="chapters"
-              value="inngangur"
-            />
-            <label for="inngangur">Inngangur</label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              id="samantekt"
-              name="chapters"
-              value="samantekt"
-            />
-            <label for="samantekt">Samantekt</label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              id="aaetlun"
-              name="chapters"
-              value="aaetlun"
-            />
-            <label for="aaetlun">Áætlun</label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              id="markmid"
-              name="chapters"
-              value="markmid"
-            />
-            <label for="markmid">Markmið</label>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="bg-blue-500 text-white px-4 py-2 rounded-md inline-flex items-center"
+      <h1 class="text-3xl font-bold mb-8 text-center">
+        Welcome to Office Assistant
+      </h1>
+      <div class="flex justify-center space-x-8">
+        <!-- Button 1 -->
+        <a
+          href="/minnisblad"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
         >
-          <i class="fas fa-upload mr-2"></i> Upload
-        </button>
-      </form>
-
-      <!-- Loading icon and message -->
-      <div
-        id="loading"
-        class="mt-4 p-4 bg-blue-100 text-blue-800 rounded-lg hidden"
-      >
-        <i class="fas fa-spinner fa-spin mr-2"></i> Processing... This may take
-        up to a minute. Please do not refresh the page.
+          <i class="fas fa-file-alt fa-3x mb-4"></i>
+          <span class="text-xl">Aðstoð við að skapa minnisblað</span>
+        </a>
+        <!-- Button 2 -->
+        <a
+          href="/internal/link2"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+        >
+          <i class="fas fa-info-circle fa-3x mb-4"></i>
+          <span class="text-xl">About</span>
+        </a>
+        <!-- Button 3 -->
+        <a
+          href="/internal/link3"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+        >
+          <i class="fas fa-envelope fa-3x mb-4"></i>
+          <span class="text-xl">Contact</span>
+        </a>
       </div>
-
-      <!-- Error message container -->
-      <div
-        id="error-message"
-        class="mt-4 p-4 bg-red-100 text-red-800 rounded-lg hidden"
-      >
-        <h2 class="text-xl font-bold mb-2">Error:</h2>
-        <p id="error-text"></p>
+      <div class="flex justify-center space-x-8 mt-8">
+        <!-- Button 1 -->
+        <a
+          href="/minnisblad-adstod"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+        >
+          <i class="fas fa-file-alt fa-3x mb-4"></i>
+          <span class="text-xl">Aðstoð við minnisblað</span>
+        </a>
+        <!-- Button 2 -->
+        <a
+          href="/internal/link2"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+        >
+          <i class="fas fa-info-circle fa-3x mb-4"></i>
+          <span class="text-xl">About</span>
+        </a>
+        <!-- Button 3 -->
+        <a
+          href="/internal/link3"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+        >
+          <i class="fas fa-envelope fa-3x mb-4"></i>
+          <span class="text-xl">Contact</span>
+        </a>
       </div>
     </main>
 
@@ -154,97 +104,5 @@
         </div>
       </div>
     </footer>
-
-    <!-- JavaScript to handle the file upload and download -->
-    <script>
-      document
-        .getElementById("upload-form")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault(); // Prevent the default form submission
-
-          const fileInput = document.getElementById("file");
-          const tokenInput = document.getElementById("token");
-
-          if (fileInput.files.length === 0) {
-            alert("Please select a file to upload.");
-            return;
-          }
-
-          if (!tokenInput.value) {
-            alert("Please enter your token.");
-            return;
-          }
-
-          const formData = new FormData();
-          formData.append("file", fileInput.files[0]);
-
-          // Get selected chapters
-          const selectedChapters = [];
-          document
-            .querySelectorAll('input[name="chapters"]:checked')
-            .forEach((checkbox) => {
-              selectedChapters.push(checkbox.value);
-            });
-          formData.append("chapters", JSON.stringify(selectedChapters));
-
-          // Disable the button and show the loading icon and message
-          const uploadButton = document.querySelector('button[type="submit"]');
-          uploadButton.disabled = true;
-          document.getElementById("loading").classList.remove("hidden");
-
-          try {
-            const response = await axios.post("/upload/", formData, {
-              responseType: "blob", // Important for handling binary data
-              headers: {
-                "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${tokenInput.value}`,
-              },
-            });
-
-            // Create a blob from the response data
-            const blob = new Blob([response.data], {
-              type: response.headers["content-type"],
-            });
-
-            // Create a link to download the file
-            const downloadUrl = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = downloadUrl;
-            // Use the filename from the response headers if available
-            const contentDisposition = response.headers["content-disposition"];
-            let filename = "OpenAI_Response.docx";
-            if (contentDisposition) {
-              const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-              if (fileNameMatch.length === 2) filename = fileNameMatch[1];
-            }
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(downloadUrl);
-
-            // Clear the file input and token input
-            fileInput.value = "";
-            tokenInput.value = "";
-          } catch (error) {
-            console.error(error);
-            document.getElementById("error-message").classList.remove("hidden");
-            if (error.response && error.response.data) {
-              const reader = new FileReader();
-              reader.onload = function () {
-                document.getElementById("error-text").innerText = reader.result;
-              };
-              reader.readAsText(error.response.data);
-            } else {
-              document.getElementById("error-text").innerText =
-                "An unexpected error occurred.";
-            }
-          } finally {
-            // Re-enable the button and hide the loading icon and message
-            uploadButton.disabled = false;
-            document.getElementById("loading").classList.add("hidden");
-          }
-        });
-    </script>
   </body>
 </html>
