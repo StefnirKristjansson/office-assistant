@@ -1,8 +1,13 @@
+import os
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
+
+# Get the .env tokenload_dotenv()
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
 
 # Mock `send_text_to_openai` function directly
@@ -20,6 +25,7 @@ def mock_openai_response(mocker):
 
 def test_upload_file_with_mocked_openai(mock_openai_response):
     with open("tests/test_document.docx", "rb") as file:
+        token = BEARER_TOKEN
         response = client.post(
             "/upload/",
             files={
@@ -30,6 +36,7 @@ def test_upload_file_with_mocked_openai(mock_openai_response):
                 )
             },
             data={"chapters": '["inngangur", "samantekt", "aaetlun"]'},
+            headers={"Authorization": f"Bearer {token}"},
         )
     assert response.status_code == 200
     assert (

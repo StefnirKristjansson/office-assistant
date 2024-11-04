@@ -1,11 +1,21 @@
-from fastapi import APIRouter, Request, File, UploadFile, HTTPException, Form
-from fastapi.responses import FileResponse
+from fastapi import (
+    APIRouter,
+    Request,
+    File,
+    UploadFile,
+    HTTPException,
+    Form,
+    Depends,
+    status,
+)
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from docx import Document
 from dotenv import load_dotenv
 import os
+from typing import Annotated
 from tempfile import NamedTemporaryFile
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
 from datetime import datetime
 import json
 
@@ -14,6 +24,26 @@ templates = Jinja2Templates(directory="app/templates")
 router = APIRouter()
 
 load_dotenv()
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+
+# Security scheme and token validation
+token_auth_scheme = HTTPBearer()
+
+
+def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_scheme)):
+    if credentials.scheme != "Bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication scheme.",
+        )
+    if credentials.credentials != BEARER_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token.",
+        )
+    return credentials.credentials
+
+
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Set the OpenAI API key globally
@@ -30,7 +60,10 @@ async def read_index(request: Request):
 
 @router.post("/upload/")
 async def upload_file(
-    request: Request, file: UploadFile = File(...), chapters: str = Form(...)
+    request: Request,
+    file: UploadFile = File(...),
+    chapters: str = Form(...),
+    token: str = Depends(get_token),
 ):
     if (
         file.content_type
@@ -207,7 +240,7 @@ def create_docx_from_json(response_json: dict) -> str:
     if "Markmið" in response_json:
         doc.add_heading("Markmið", level=2)
         doc.add_paragraph(response_json["Markmið"])
-        
+
     if "Áætlun" in response_json:
         doc.add_heading("Áætlun", level=2)
         doc.add_paragraph(response_json["Áætlun"])

@@ -13,7 +13,6 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/static/styles.css" />
     <!-- Include Axios for making AJAX requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   </head>
@@ -34,16 +33,41 @@
         This is the main page of the Office Assistant application.
       </p>
       <form id="upload-form" class="bg-white p-6 rounded-lg shadow-md">
-        <label for="file" class="block text-sm font-medium text-gray-700 mb-2"
-          >Choose a .docx file to upload:</label
-        >
-        <input type="file" name="file" id="file" accept=".docx" class="mb-4" />
+        <!-- Token input field -->
+        <div class="mb-4">
+          <label
+            for="token"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Enter your token:
+          </label>
+          <input
+            type="text"
+            id="token"
+            name="token"
+            class="w-full border border-gray-300 p-2 rounded-md"
+            required
+          />
+        </div>
+
+        <!-- File input -->
+        <label for="file" class="block text-sm font-medium text-gray-700 mb-2">
+          Choose a .docx file to upload:
+        </label>
+        <input
+          type="file"
+          name="file"
+          id="file"
+          accept=".docx"
+          class="mb-4"
+          required
+        />
 
         <!-- Checkboxes for chapters -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Select chapters to include:</label
-          >
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Select chapters to include:
+          </label>
           <div>
             <input
               type="checkbox"
@@ -139,8 +163,15 @@
           event.preventDefault(); // Prevent the default form submission
 
           const fileInput = document.getElementById("file");
+          const tokenInput = document.getElementById("token");
+
           if (fileInput.files.length === 0) {
             alert("Please select a file to upload.");
+            return;
+          }
+
+          if (!tokenInput.value) {
+            alert("Please enter your token.");
             return;
           }
 
@@ -166,6 +197,7 @@
               responseType: "blob", // Important for handling binary data
               headers: {
                 "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${tokenInput.value}`,
               },
             });
 
@@ -178,14 +210,22 @@
             const downloadUrl = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = downloadUrl;
-            link.download = "OpenAI_Response.docx"; // The name of the downloaded file
+            // Use the filename from the response headers if available
+            const contentDisposition = response.headers["content-disposition"];
+            let filename = "OpenAI_Response.docx";
+            if (contentDisposition) {
+              const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+              if (fileNameMatch.length === 2) filename = fileNameMatch[1];
+            }
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(downloadUrl);
 
-            // Clear the file input
+            // Clear the file input and token input
             fileInput.value = "";
+            tokenInput.value = "";
           } catch (error) {
             console.error(error);
             document.getElementById("error-message").classList.remove("hidden");
