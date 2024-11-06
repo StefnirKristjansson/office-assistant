@@ -10,43 +10,20 @@ jobs:
   runner-job:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest pytest-cov respx pytest-mock pytest-xdist alembic
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      
-      - name: Run Alembic Migrations
-        env:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_SERVER: localhost
-            POSTGRES_PORT: 5432
-            POSTGRES_DB: postgres
-        run: |
-            alembic upgrade head
-      
+
       - name: Test with pytest
         env:
           SUPABASE_URL: "https://vlirscubbymrdmkcpkqm.supabase.co"
