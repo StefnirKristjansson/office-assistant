@@ -45,5 +45,6 @@ jobs:
           ANALYZER_API_TOKEN: Very_secret_key_54321
           AUTH_API_URL: https://auth-v0.mentalmeasure.com/
           OPENAI_API_KEY: "Just a test key"
+          BEARER_TOKEN: "test"
         run: |
           pytest -n auto
