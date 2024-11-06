@@ -1,0 +1,50 @@
+name: Tester
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  runner-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest pytest-cov respx pytest-mock pytest-xdist alembic
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Test with pytest
+        env:
+          SUPABASE_URL: "https://vlirscubbymrdmkcpkqm.supabase.co"
+          SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsaXJzY3ViYnltcmRta2Nwa3FtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MDYwNjA2MiwiZXhwIjoxOTg2MTgyMDYyfQ.jHstrQG-I3eU98EitUOoRpmYonBFjC9Kh40_v4cDY-Y"
+          API_KEY: "YOUR_API_KEY"
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: postgres
+          TEXT_API_URL: https://text-v0.mentalmeasure.com/
+          TEXT_API_TOKEN: Very_secret_key_54321
+          TEST_USER_SUPABASE_PASSWORD: "12345678"
+          TESTER_API_URL: https://tester-v0.mentalmeasure.com/
+          TESTER_API_TOKEN: Very_secret_key_54321
+          DATA_API_URL: https://data-v0.mentalmeasure.com/
+          DATA_API_TOKEN: "Very_secret_key_54321"
+          ANALYZER_API_URL: https://analyzer-v0.mentalmeasure.com/
+          ANALYZER_API_TOKEN: Very_secret_key_54321
+          AUTH_API_URL: https://auth-v0.mentalmeasure.com/
+          OPENAI_API_KEY: "Just a test key"
+          BEARER_TOKEN: "test"
+        run: |
+          pytest -n auto
