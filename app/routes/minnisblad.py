@@ -79,6 +79,7 @@ async def upload_file(
     if (
         file.content_type
         != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        or not file.filename.endswith(".docx")
     ):
         raise HTTPException(
             status_code=400, detail="Invalid file type. Please upload a .docx file."

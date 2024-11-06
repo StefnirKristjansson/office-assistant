@@ -63,7 +63,7 @@ def test_upload_file_with_invalid_token():
                 "file": (
                     "test_document.docx",
                     file,
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "text/plain",
                 )
             },
             data={"chapters": '["inngangur", "samantekt", "aaetlun"]'},
@@ -94,3 +94,23 @@ def test_upload_file_that_is_too_short():
     assert response.json() == {
         "detail": "The document must contain between 10 and 5000 words."
     }
+
+
+def test_upload_wrong_file_type():
+    """Test the upload_file route with a file that is not a .docx file."""
+    with open("tests/test_document.txt", "rb") as file:
+        token = BEARER_TOKEN
+
+        response = client.post(
+            "/minnisblad/upload/",
+            files={
+                "file": (
+                    "test_document.txt",
+                    file,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+            },
+            data={"chapters": '["inngangur", "samantekt", "aaetlun"]'},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    assert response.status_code == 400
