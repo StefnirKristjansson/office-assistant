@@ -98,7 +98,7 @@ async def upload_file(
         output_file_path = create_docx_from_json(openai_response)
         # create a timestamp in human readable format
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = "OpenAI_Response_" + timestamp + ".docx"
+        filename = "Frodi_minnisblad_" + timestamp + ".docx"
 
         return FileResponse(
             output_file_path,
