@@ -71,3 +71,34 @@ def test_upload_file_with_invalid_token():
         )
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid or expired token."}
+
+
+def test_upload_file_that_is_too_short():
+    """Test the upload_file route with a document that is too short."""
+    with open("tests/test_document_short.docx", "rb") as file:
+        token = BEARER_TOKEN
+
+        response = client.post(
+            "/minnisblad/upload/",
+            files={
+                "file": (
+                    "test_document_short.docx",
+                    file,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+            },
+            data={"chapters": '["inngangur", "samantekt", "aaetlun"]'},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "The document must contain between 10 and 5000 words."
+    }
+
+
+def test_index_returns_200():
+    """Test the index route."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/html; charset=utf-8"
+    assert response.template.name == "index.html"

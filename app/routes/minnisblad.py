@@ -126,7 +126,9 @@ def extract_text_from_docx(file):
     return "\n".join(text)
 
 
-async def send_text_to_openai(text: str, response_format: dict) -> dict:
+async def send_text_to_openai(
+    text: str, response_format: dict
+) -> dict:  # pragma: no cover
     """Send the text to the OpenAI API and return the response."""
     # Using the OpenAI client as per your original
     content_text = """Notandinn sendir þér texta sem þú átt að breyta í minnisblað.
@@ -158,7 +160,6 @@ async def send_text_to_openai(text: str, response_format: dict) -> dict:
         presence_penalty=0,
         response_format=response_format,
     )
-    print(completion)
     response = json.loads(completion.choices[0].message.content)
     return response
 
