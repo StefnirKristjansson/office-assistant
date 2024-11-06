@@ -1,112 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Fróði</title>
-    <!-- Include Tailwind CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <!-- Include Font Awesome for icons -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-gray-100 flex flex-col min-h-screen">
-    <!-- Navigation bar -->
-    <nav class="bg-white shadow-md">
-      <div
-        class="container mx-auto px-4 py-2 flex justify-between items-center"
-      >
-        <a href="/" class="text-xl font-bold">Fróði</a>
-      </div>
-    </nav>
+{% extends "base.html" %}
 
-    <!-- Main content -->
-    <main class="container mx-auto px-4 py-8 flex-grow">
-      <h1 class="text-3xl font-bold mb-8 text-center">
-        Velkomin á Fróða hvað viltu gera?
-      </h1>
-      <div class="flex justify-center space-x-8">
-        <!-- Button 1 -->
-        <a
-          href="/minnisblad"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-file-alt fa-3x mb-4"></i>
-          <span class="text-xl">Aðstoð við að skapa minnisblað</span>
-        </a>
-        <!-- Button 2 -->
-        <a
-          href="/internal/link2"
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-info-circle fa-3x mb-4"></i>
-          <span class="text-xl">Ekki tilbúið</span>
-        </a>
-        <!-- Button 3 -->
-        <a
-          href="/internal/link3"
-          class="bg-red-500 hover:bg-red-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-envelope fa-3x mb-4"></i>
-          <span class="text-xl">Ekki tilbúið</span>
-        </a>
-      </div>
-      <div class="flex justify-center space-x-8 mt-8">
-        <!-- Button 1 -->
-        <a
-          href="/minnisblad-adstod"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-file-alt fa-3x mb-4"></i>
-          <span class="text-xl">Endurgjöf á minnisblað</span>
-        </a>
-        <!-- Button 2 -->
-        <a
-          href="/internal/link2"
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-info-circle fa-3x mb-4"></i>
-          <span class="text-xl">Ekki tilbúið</span>
-        </a>
-        <!-- Button 3 -->
-        <a
-          href="/internal/link3"
-          class="bg-red-500 hover:bg-red-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-envelope fa-3x mb-4"></i>
-          <span class="text-xl">Ekki tilbúið</span>
-        </a>
-      </div>
-      <div class="flex justify-center space-x-8 mt-8">
-        <!-- Button 1 -->
-        <a
-          href="/minnisblad-adstod"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
-        >
-          <i class="fas fa-file-alt fa-3x mb-4"></i>
-          <span class="text-xl">Almenn aðstoð frá Fróða</span>
-        </a>
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white shadow-md">
-      <div
-        class="container mx-auto px-4 py-4 flex justify-between items-center"
-      >
-        <p class="text-sm text-gray-600">Fróði 2024</p>
-        <div class="flex space-x-4">
-          <a
-            href="https://www.linkedin.com/in/stefnirk/"
-            class="text-gray-600 hover:text-gray-800"
-            ><i class="fab fa-linkedin"></i
-          ></a>
-        </div>
-      </div>
-    </footer>
-  </body>
-</html>
+{% block content %}
+<main class="container mx-auto px-4 py-8 flex-grow">
+  <h1 class="text-3xl font-bold mb-8 text-center">
+    Velkomin á Fróða hvað viltu gera?
+  </h1>
+  <div class="flex justify-center space-x-8">
+    <!-- Button 1 -->
+    <a
+      href="/minnisblad"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-file-alt fa-3x mb-4"></i>
+      <span class="text-xl">Aðstoð við að skapa minnisblað</span>
+    </a>
+    <!-- Button 2 -->
+    <a
+      href="/internal/link2"
+      class="bg-green-500 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-info-circle fa-3x mb-4"></i>
+      <span class="text-xl">Ekki tilbúið</span>
+    </a>
+    <!-- Button 3 -->
+    <a
+      href="/internal/link3"
+      class="bg-red-500 hover:bg-red-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-envelope fa-3x mb-4"></i>
+      <span class="text-xl">Ekki tilbúið</span>
+    </a>
+  </div>
+  <div class="flex justify-center space-x-8 mt-8">
+    <!-- Button 1 -->
+    <a
+      href="/minnisblad-adstod"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-file-alt fa-3x mb-4"></i>
+      <span class="text-xl">Endurgjöf á minnisblað</span>
+    </a>
+    <!-- Button 2 -->
+    <a
+      href="/internal/link2"
+      class="bg-green-500 hover:bg-green-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-info-circle fa-3x mb-4"></i>
+      <span class="text-xl">Ekki tilbúið</span>
+    </a>
+    <!-- Button 3 -->
+    <a
+      href="/internal/link3"
+      class="bg-red-500 hover:bg-red-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-envelope fa-3x mb-4"></i>
+      <span class="text-xl">Ekki tilbúið</span>
+    </a>
+  </div>
+  <div class="flex justify-center space-x-8 mt-8">
+    <!-- Button 1 -->
+    <a
+      href="/minnisblad-adstod"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg inline-flex flex-col items-center"
+    >
+      <i class="fas fa-file-alt fa-3x mb-4"></i>
+      <span class="text-xl">Almenn aðstoð frá Fróða</span>
+    </a>
+  </div>
+</main>
+{% endblock %}
