@@ -1,3 +1,5 @@
+"""Test the routes in the FastAPI app."""
+
 import os
 import pytest
 from fastapi.testclient import TestClient
@@ -6,24 +8,28 @@ from app.main import app
 client = TestClient(app)
 
 
-# Get the .env tokenload_dotenv()
+# Get the .env token
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
 
 # Mock `send_text_to_openai` function directly
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_openai_response(mocker):
+    """Mock the response from the OpenAI API."""
     mock_response = {
         "titill": "Test Title",
         "Inngangur": "Test Introduction",
         "kaflar": [{"chapter_title": "Test Chapter", "content": "Test Content"}],
         "Samantekt": "Test Summary",
     }
-    mocker.patch("app.routes.minnisblad.send_text_to_openai", return_value=mock_response)
+    mocker.patch(
+        "app.routes.minnisblad.send_text_to_openai", return_value=mock_response
+    )
     return mock_response
 
 
-def test_upload_file_with_mocked_openai(mock_openai_response):
+def test_upload_file_with_mocked_openai():
+    """Test the upload_file route with a mocked OpenAI response."""
     with open("tests/test_document.docx", "rb") as file:
         token = BEARER_TOKEN
         response = client.post(
@@ -39,10 +45,16 @@ def test_upload_file_with_mocked_openai(mock_openai_response):
             headers={"Authorization": f"Bearer {token}"},
         )
     assert response.status_code == 200
-    assert "OpenAI_Response" in response.headers["content-disposition"]
+    # Ensure the response includes a docx file
+    assert (
+        response.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+    assert response.content is not None
 
 
-def test_upload_file_with_invalid_token(mock_openai_response):
+def test_upload_file_with_invalid_token():
+    """Test the upload_file route with an invalid token."""
     with open("tests/test_document.docx", "rb") as file:
         token = "invalid_token"
         response = client.post(

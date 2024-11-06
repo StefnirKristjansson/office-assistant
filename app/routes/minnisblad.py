@@ -1,3 +1,9 @@
+"""This module contains the routes for the minnisblad application."""
+
+import os
+from datetime import datetime
+import json
+from tempfile import NamedTemporaryFile
 from fastapi import (
     APIRouter,
     Request,
@@ -10,14 +16,11 @@ from fastapi import (
 )
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.templating import Jinja2Templates
 from docx import Document
 from dotenv import load_dotenv
-import os
-from typing import Annotated
-from tempfile import NamedTemporaryFile
-from fastapi.templating import Jinja2Templates
-from datetime import datetime
-import json
+from openai import OpenAI
+
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -31,6 +34,7 @@ token_auth_scheme = HTTPBearer()
 
 
 def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_scheme)):
+    """Validate the token and return it if it is valid."""
     if credentials.scheme != "Bearer":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,19 +51,20 @@ def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_sch
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Set the OpenAI API key globally
-from openai import OpenAI
 
 OpenAI.api_key = openai_api_key
 client = OpenAI()
 
 
 @router.get("/minnisblad", response_class=HTMLResponse)
-async def read_index(request: Request):
+async def minnisblad(request: Request):
+    """Render the minnisblad page."""
     return templates.TemplateResponse("minnisblad.html", {"request": request})
 
 
 @router.get("/minnisblad-adstod", response_class=HTMLResponse)
-async def read_index(request: Request):
+async def minnisblad_adstod(request: Request):
+    """Render the minnisblad-adstod page."""
     return templates.TemplateResponse("minnisblad-adstod.html", {"request": request})
 
 
@@ -68,8 +73,9 @@ async def upload_file(
     request: Request,
     file: UploadFile = File(...),
     chapters: str = Form(...),
-    token: str = Depends(get_token),
+    _: str = Depends(get_token),
 ):
+    """Process the uploaded file and return the modified document."""
     if (
         file.content_type
         != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -105,13 +111,14 @@ async def upload_file(
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             filename=filename,
         )
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         return templates.TemplateResponse(
             "index.html", {"request": request, "error": str(e)}
         )
 
 
 def extract_text_from_docx(file):
+    """Extract text from a .docx file."""
     doc = Document(file)
     text = []
     for paragraph in doc.paragraphs:
@@ -120,14 +127,18 @@ def extract_text_from_docx(file):
 
 
 async def send_text_to_openai(text: str, response_format: dict) -> dict:
-    # Using the OpenAI client as per your original code
+    """Send the text to the OpenAI API and return the response."""
+    # Using the OpenAI client as per your original
+    content_text = """Notandinn sendir þér texta sem þú átt að breyta í minnisblað.
+    Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best. 
+    Passaðu að hafa kaflanna ekki of stutta ekki hafa fleirri en 2 kafla á blaðsíðu."""
     messages = [
         {
             "role": "system",
             "content": [
                 {
                     "type": "text",
-                    "text": "Notandinn sendir þér texta sem þú átt að breyta í minnisblað. Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best. Passaðu að hafa kaflanna ekki of stutta ekki hafa fleirri en 2 kafla á blaðsíðu.",
+                    "text": content_text,
                 }
             ],
         },
@@ -153,6 +164,7 @@ async def send_text_to_openai(text: str, response_format: dict) -> dict:
 
 
 def create_response_format(selected_chapters: list) -> dict:
+    """Create the response format based on the selected chapters."""
     base_response = {
         "type": "json_schema",
         "json_schema": {
@@ -230,6 +242,7 @@ def create_response_format(selected_chapters: list) -> dict:
 
 
 def create_docx_from_json(response_json: dict) -> str:
+    """Create a Word document from the JSON response."""
     # Create a new Word document
     doc = Document()
 
@@ -257,12 +270,14 @@ def create_docx_from_json(response_json: dict) -> str:
             doc.add_paragraph(chapter["content"])
 
     # if there is a summary, add it to the document
+
     if "Samantekt" in response_json:
         doc.add_heading("Samantekt", level=2)
         doc.add_paragraph(response_json["Samantekt"])
 
-    # Save the document to a temporary file
-    temp_file = NamedTemporaryFile(delete=False, suffix=".docx")
-    doc.save(temp_file.name)
-    temp_file.close()
-    return temp_file.name
+    # Save the document to a temporary file using 'with'
+    with NamedTemporaryFile(delete=False, suffix=".docx") as temp_file:
+        doc.save(temp_file.name)
+        temp_file_path = temp_file.name  # Store the file path to return after closing
+
+    return temp_file_path
