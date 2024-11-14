@@ -1,9 +1,7 @@
 """This module contains the routes for the minnisblad application."""
 
 import os
-from datetime import datetime
 import json
-from tempfile import NamedTemporaryFile
 from fastapi import (
     APIRouter,
     Request,
@@ -14,7 +12,7 @@ from fastapi import (
     Depends,
     status,
 )
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.templating import Jinja2Templates
 from docx import Document
@@ -69,7 +67,7 @@ async def upload_file(
     chapters: str = Form(...),
     _: str = Depends(get_token),
 ):
-    """Process the uploaded file and return the modified document."""
+    """Process the uploaded file and return the JSON response."""
     if (
         file.content_type
         != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -94,18 +92,7 @@ async def upload_file(
         selected_chapters = json.loads(chapters)
         respond_format = create_response_format(selected_chapters)
         openai_response = await send_text_to_openai(text, respond_format)
-        # the openai_response is a string, so we need to convert it to a dictionary
-
-        output_file_path = create_docx_from_json(openai_response)
-        # create a timestamp in human readable format
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = "Frodi_minnisblad_" + timestamp + ".docx"
-
-        return FileResponse(
-            output_file_path,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename=filename,
-        )
+        return JSONResponse(content=openai_response)
     except Exception as e:  # pylint: disable=broad-except
         return templates.TemplateResponse(
             "index.html", {"request": request, "error": str(e)}
@@ -149,7 +136,7 @@ async def send_text_to_openai(
         model="gpt-4o",
         messages=messages,
         temperature=1,
-        max_tokens=2048,
+        max_tokens=4000,
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
@@ -209,45 +196,3 @@ def create_response_format(selected_chapters: list) -> dict:
     }
 
     return base_response
-
-
-def create_docx_from_json(response_json: dict) -> str:
-    """Create a Word document from the JSON response."""
-    # Create a new Word document
-    doc = Document()
-
-    # Add the title
-    doc.add_heading(response_json.get("titill", "Titill Ekki Tiltækur"), level=1)
-
-    # if there is an introduction, add it to the document
-    if "Inngangur" in response_json:
-        doc.add_heading("Inngangur", level=2)
-        doc.add_paragraph(response_json["Inngangur"])
-
-    # if there is markmid, add it to the document
-    if "Markmið" in response_json:
-        doc.add_heading("Markmið", level=2)
-        doc.add_paragraph(response_json["Markmið"])
-
-    if "Áætlun" in response_json:
-        doc.add_heading("Áætlun", level=2)
-        doc.add_paragraph(response_json["Áætlun"])
-
-    # if there are chapters, add them to the document
-    if "kaflar" in response_json:
-        for chapter in response_json["kaflar"]:
-            doc.add_heading(chapter["chapter_title"], level=2)
-            doc.add_paragraph(chapter["content"])
-
-    # if there is a summary, add it to the document
-
-    if "Samantekt" in response_json:
-        doc.add_heading("Samantekt", level=2)
-        doc.add_paragraph(response_json["Samantekt"])
-
-    # Save the document to a temporary file using 'with'
-    with NamedTemporaryFile(delete=False, suffix=".docx") as temp_file:
-        doc.save(temp_file.name)
-        temp_file_path = temp_file.name  # Store the file path to return after closing
-
-    return temp_file_path
