@@ -113,8 +113,9 @@ async def send_text_to_openai(
 ) -> dict:  # pragma: no cover
     """Send the text to the OpenAI API and return the response."""
     # Using the OpenAI client as per your original
-    content_text = """Notendinn sendi þér minnisblað, ef þetta er ekki minnisblað svaraðu allstaðar að þetta er ekki minnisblað
-    en vertu viss um að þetta sé ekki minnisblað. Ef þetta er minnisblað getðu þitt besta til að gefa endurgjöf á því."""
+    content_text = """Notendinn sendi þér minnisblað, farðu mjög varlega yfir það og 
+    finndu dæmi um önnur minnisblöð, 
+    gefðu þér tíma að skoa Íslenskt málfar og stafsetningu."""
     messages = [
         {
             "role": "system",
@@ -147,34 +148,51 @@ async def send_text_to_openai(
 
 def create_response_format(selected_chapters: list) -> dict:
     """Create the response format based on the selected chapters."""
-    base_response = {
+    base_response = base_response = {
         "type": "json_schema",
         "json_schema": {
-            "name": "minnisblad endurgjöf",  # Updated name
-            "strict": True,
-            "schema": {
+            "name": "Minnisblad_adstod",
+            "schema": {  # Correcting to include 'schema' directly
+                "title": "Minnisblad_adstod",
                 "type": "object",
                 "properties": {
-                    "malfar": {
+                    "name": {"type": "string", "description": "The name of the schema"},
+                    "type": {
                         "type": "string",
-                        "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi málfar, stíl og uppbyggingu minnisblaðsins.",
+                        "enum": [
+                            "object",
+                            "array",
+                            "string",
+                            "number",
+                            "boolean",
+                            "null",
+                        ],
+                        "description": "The type of the schema (should match JSON Schema types)",
                     },
-                    "stafsetning": {
-                        "type": "string",
-                        "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi stafsetningu",
-                    },
-                    "radleggingar": {
-                        "type": "string",
-                        "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi almennar raðleggingar",
+                    "properties": {
+                        "type": "object",
+                        "properties": {
+                            "malfar": {
+                                "type": "string",
+                                "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi málfar, stíl og uppbyggingu minnisblaðsins.",
+                            },
+                            "stafsetning": {
+                                "type": "string",
+                                "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi stafsetningu passaðu að benda skýrt á allar stafsetningarvillur með að vitna í textan sem á við.",
+                            },
+                            "radleggingar": {
+                                "type": "string",
+                                "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi almennar raðleggingar. Farðu vel yfir hvernig minnisblöð eru yfir höfuð og hafðu það í huga",
+                            },
+                        },
+                        "required": ["malfar", "stafsetning", "radleggingar"],
+                        "additionalProperties": False,
                     },
                 },
-                "required": [
-                    "malfar",
-                    "stafsetning",
-                    "radleggingar",
-                ],
+                "required": ["name", "type", "properties"],
                 "additionalProperties": False,
             },
         },
     }
+
     return base_response
