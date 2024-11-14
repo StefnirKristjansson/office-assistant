@@ -105,10 +105,73 @@
     <h2 class="text-xl font-bold mb-2">Error:</h2>
     <p id="error-text"></p>
   </div>
+
+  <!-- Success message container -->
+  <div
+    id="success-message"
+    class="mt-4 p-4 bg-green-100 text-green-800 rounded-lg hidden"
+  >
+    <h2 class="text-xl font-bold mb-2">Success:</h2>
+    <p id="success-text"></p>
+  </div>
+
+  <!-- JSON response container -->
+  <div
+    id="json-response"
+    class="mt-4 p-4 bg-gray-100 text-gray-800 rounded-lg hidden"
+  >
+    <h2 class="text-xl font-bold mb-2">JSON Response:</h2>
+    <pre id="json-text"></pre>
+  </div>
+
+  <!-- Input fields for JSON response -->
+  <div id="json-input-fields" class="mt-4 hidden">
+    <div class="mb-4">
+      <label for="malfar" class="block text-sm font-medium text-gray-700 mb-2">
+        Málfar:
+      </label>
+      <input
+        type="text"
+        id="malfar"
+        name="malfar"
+        class="w-full border border-gray-300 p-2 rounded-md"
+        readonly
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="stafsetning"
+        class="block text-sm font-medium text-gray-700 mb-2"
+      >
+        Stafsetning:
+      </label>
+      <input
+        type="text"
+        id="stafsetning"
+        name="stafsetning"
+        class="w-full border border-gray-300 p-2 rounded-md"
+        readonly
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="radleggingar"
+        class="block text-sm font-medium text-gray-700 mb-2"
+      >
+        Ráðleggingar:
+      </label>
+      <input
+        type="text"
+        id="radleggingar"
+        name="radleggingar"
+        class="w-full border border-gray-300 p-2 rounded-md"
+        readonly
+      />
+    </div>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="/static/minnisblad-adstod.js"></script>
-
 
 {% endblock %}

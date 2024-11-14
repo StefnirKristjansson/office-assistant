@@ -47,3 +47,23 @@ button:hover {
     border-radius: 5px;
     margin-top: 10px;
 }
+
+/* Styles for the new input fields and JSON response container */
+#json-response {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+}
+
+#json-input-fields input {
+    background-color: #e0f7fa;
+    color: #00695c;
+    border: 1px solid #004d40;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}

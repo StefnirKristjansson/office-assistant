@@ -38,7 +38,6 @@ document
         "/minnisblad-adstod/upload/",
         formData,
         {
-          responseType: "blob", // Important for handling binary data
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${tokenInput.value}`,
@@ -46,27 +45,20 @@ document
         }
       );
 
-      // Create a blob from the response data
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
+      // Process the JSON response
+      const jsonResponse = response.data;
 
-      // Create a link to download the file
-      const downloadUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      // Use the filename from the response headers if available
-      const contentDisposition = response.headers["content-disposition"];
-      let filename = "Frodi_minnisblad.docx";
-      if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (fileNameMatch.length === 2) filename = fileNameMatch[1];
-      }
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(downloadUrl);
+      // Populate the input fields with the JSON data
+      document.getElementById("malfar").value = jsonResponse.malfar;
+      document.getElementById("stafsetning").value = jsonResponse.stafsetning;
+      document.getElementById("radleggingar").value = jsonResponse.radleggingar;
+
+      // Display the JSON response in the container
+      document.getElementById("json-text").innerText = JSON.stringify(jsonResponse, null, 2);
+      document.getElementById("json-response").classList.remove("hidden");
+
+      // Display the success message
+      document.getElementById("success-message").classList.remove("hidden");
 
       // Clear the file input and token input
       fileInput.value = "";
