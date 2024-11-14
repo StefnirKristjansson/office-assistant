@@ -48,14 +48,26 @@ document
       // Process the JSON response
       const jsonResponse = response.data;
 
+      // Extract and format text content for display
+      const malfarText = jsonResponse.properties.malfar
+        .replace(/\\n/g, "<br>")
+        .replace(/\\"/g, '"');
+      const radleggingarText = jsonResponse.properties.radleggingar
+        .replace(/\\n/g, "<br>")
+        .replace(/\\"/g, '"');
+
       // Populate the input fields with the JSON data
       document.getElementById("malfar").value = jsonResponse.malfar;
       document.getElementById("stafsetning").value = jsonResponse.stafsetning;
       document.getElementById("radleggingar").value = jsonResponse.radleggingar;
 
-      // Display the JSON response in the container
-      document.getElementById("json-text").innerText = JSON.stringify(jsonResponse, null, 2);
-      document.getElementById("json-response").classList.remove("hidden");
+      // Display the formatted JSON response in the containers
+      document.getElementById("malfar-text").innerHTML = malfarText;
+      document.getElementById("malfar-message").classList.remove("hidden");
+      document.getElementById("radleggingar-text").innerHTML = radleggingarText;
+      document
+        .getElementById("radleggingar-message")
+        .classList.remove("hidden");
 
       // Display the success message
       document.getElementById("success-message").classList.remove("hidden");

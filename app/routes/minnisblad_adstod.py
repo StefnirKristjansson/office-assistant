@@ -136,7 +136,7 @@ async def send_text_to_openai(
         model="gpt-4o",
         messages=messages,
         temperature=1,
-        max_tokens=2048,
+        max_tokens=4000,
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
@@ -148,7 +148,7 @@ async def send_text_to_openai(
 
 def create_response_format(selected_chapters: list) -> dict:
     """Create the response format based on the selected chapters."""
-    base_response = base_response = {
+    base_response = {
         "type": "json_schema",
         "json_schema": {
             "name": "Minnisblad_adstod",
