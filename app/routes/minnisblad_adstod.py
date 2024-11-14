@@ -56,13 +56,13 @@ OpenAI.api_key = openai_api_key
 client = OpenAI()
 
 
-@router.get("/minnisblad", response_class=HTMLResponse)
-async def minnisblad(request: Request):
-    """Render the minnisblad page."""
-    return templates.TemplateResponse("minnisblad.html", {"request": request})
+@router.get("/minnisblad-adstod", response_class=HTMLResponse)
+async def minnisblad_adstod(request: Request):
+    """Render the minnisblad-adstod page."""
+    return templates.TemplateResponse("minnisblad-adstod.html", {"request": request})
 
 
-@router.post("/minnisblad/upload/")
+@router.post("/minnisblad-adstod/upload/")
 async def upload_file(
     request: Request,
     file: UploadFile = File(...),
@@ -126,9 +126,8 @@ async def send_text_to_openai(
 ) -> dict:  # pragma: no cover
     """Send the text to the OpenAI API and return the response."""
     # Using the OpenAI client as per your original
-    content_text = """Notandinn sendir þér texta sem þú átt að breyta í minnisblað.
-    Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best. 
-    Passaðu að hafa kaflanna ekki of stutta ekki hafa fleirri en 2 kafla á blaðsíðu."""
+    content_text = """Notendinn sendi þér minnisblað, ef þetta er ekki minnisblað svaraðu allstaðar að þetta er ekki minnisblað
+    en vertu viss um að þetta sé ekki minnisblað. Ef þetta er minnisblað getðu þitt besta til að gefa endurgjöf á því."""
     messages = [
         {
             "role": "system",
@@ -164,76 +163,33 @@ def create_response_format(selected_chapters: list) -> dict:
     base_response = {
         "type": "json_schema",
         "json_schema": {
-            "name": "minnisblad",  # Updated name
+            "name": "minnisblad endurgjöf",  # Updated name
             "strict": True,
             "schema": {
                 "type": "object",
                 "properties": {
-                    "titill": {
+                    "malfar": {
                         "type": "string",
-                        "description": "Titill minnisblaðsins.",
+                        "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi málfar, stíl og uppbyggingu minnisblaðsins.",
                     },
-                    "kaflar": {
-                        "type": "array",
-                        "description": "Kaflar minnisblaðsins.",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "chapter_title": {
-                                    "type": "string",
-                                    "description": "Titill kafla.",
-                                },
-                                "content": {
-                                    "type": "string",
-                                    "description": "Innihald kafla.",
-                                },
-                            },
-                            "required": ["chapter_title", "content"],
-                            "additionalProperties": False,
-                        },
+                    "stafsetning": {
+                        "type": "string",
+                        "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi stafsetningu",
+                    },
+                    "radleggingar": {
+                        "type": "string",
+                        "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi almennar raðleggingar",
                     },
                 },
                 "required": [
-                    "titill",
-                    "kaflar",
+                    "malfar",
+                    "stafsetning",
+                    "radleggingar",
                 ],
                 "additionalProperties": False,
             },
         },
     }
-    inngangur_description = "Inngangur minnisblaðsins."
-    samantekt_description = "Samantekt minnisblaðsins."
-    aaetlun_description = "Áætlun minnisblaðsins."
-    markmid_description = "Markmið minnisblaðsins."
-
-    if "inngangur" in selected_chapters:
-        base_response["json_schema"]["schema"]["properties"]["Inngangur"] = {
-            "type": "string",
-            "description": inngangur_description,
-        }
-        base_response["json_schema"]["schema"]["required"].append("Inngangur")
-
-    if "samantekt" in selected_chapters:
-        base_response["json_schema"]["schema"]["properties"]["Samantekt"] = {
-            "type": "string",
-            "description": samantekt_description,
-        }
-        base_response["json_schema"]["schema"]["required"].append("Samantekt")
-
-    if "aaetlun" in selected_chapters:
-        base_response["json_schema"]["schema"]["properties"]["Áætlun"] = {
-            "type": "string",
-            "description": aaetlun_description,
-        }
-        base_response["json_schema"]["schema"]["required"].append("Áætlun")
-
-    if "markmid" in selected_chapters:
-        base_response["json_schema"]["schema"]["properties"]["Markmið"] = {
-            "type": "string",
-            "description": markmid_description,
-        }
-        base_response["json_schema"]["schema"]["required"].append("Markmið")
-
     return base_response
 
 
