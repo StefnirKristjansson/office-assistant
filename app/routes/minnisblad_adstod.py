@@ -1,23 +1,21 @@
 """This module contains the routes for the minnisblad application."""
 
 import os
-import json
 from fastapi import (
     APIRouter,
     Request,
     File,
     UploadFile,
     HTTPException,
-    Form,
     Depends,
     status,
 )
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.templating import Jinja2Templates
-from docx import Document
 from dotenv import load_dotenv
 from openai import OpenAI
+from app.utils import extract_text_from_docx, send_text_to_openai
 
 
 templates = Jinja2Templates(directory="app/templates")
@@ -46,14 +44,6 @@ def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_sch
     return credentials.credentials
 
 
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
-# Set the OpenAI API key globally
-
-OpenAI.api_key = openai_api_key
-client = OpenAI()
-
-
 @router.get("/minnisblad-adstod", response_class=HTMLResponse)
 async def minnisblad_adstod(request: Request):
     """Render the minnisblad-adstod page."""
@@ -64,7 +54,6 @@ async def minnisblad_adstod(request: Request):
 async def upload_file(
     request: Request,
     file: UploadFile = File(...),
-    chapters: str = Form(...),
     _: str = Depends(get_token),
 ):
     """Process the uploaded file and return the JSON response."""
@@ -89,8 +78,7 @@ async def upload_file(
         )
 
     try:
-        selected_chapters = json.loads(chapters)
-        respond_format = create_response_format(selected_chapters)
+        respond_format = create_response_format()
         openai_response = await send_text_to_openai(text, respond_format)
         return JSONResponse(content=openai_response)
     except Exception as e:  # pylint: disable=broad-except
@@ -99,54 +87,7 @@ async def upload_file(
         )
 
 
-def extract_text_from_docx(file):
-    """Extract text from a .docx file."""
-    doc = Document(file)
-    text = []
-    for paragraph in doc.paragraphs:
-        text.append(paragraph.text)
-    return "\n".join(text)
-
-
-async def send_text_to_openai(
-    text: str, response_format: dict
-) -> dict:  # pragma: no cover
-    """Send the text to the OpenAI API and return the response."""
-    # Using the OpenAI client as per your original
-    content_text = """Notendinn sendi þér minnisblað, farðu mjög varlega yfir það og 
-    finndu dæmi um önnur minnisblöð, 
-    gefðu þér tíma að skoa Íslenskt málfar og stafsetningu."""
-    messages = [
-        {
-            "role": "system",
-            "content": [
-                {
-                    "type": "text",
-                    "text": content_text,
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": text}],
-        },
-    ]
-
-    completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        temperature=1,
-        max_tokens=4000,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-        response_format=response_format,
-    )
-    response = json.loads(completion.choices[0].message.content)
-    return response
-
-
-def create_response_format(selected_chapters: list) -> dict:
+def create_response_format() -> dict:
     """Create the response format based on the selected chapters."""
     base_response = base_response = {
         "type": "json_schema",
@@ -174,15 +115,23 @@ def create_response_format(selected_chapters: list) -> dict:
                         "properties": {
                             "malfar": {
                                 "type": "string",
-                                "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi málfar, stíl og uppbyggingu minnisblaðsins.",
+                                "description": """Hérna setur þú inn hvað meigi bæta og
+                                breyta varðandi málfar,
+                                stíl og uppbyggingu minnisblaðsins.""",
                             },
                             "stafsetning": {
                                 "type": "string",
-                                "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi stafsetningu passaðu að benda skýrt á allar stafsetningarvillur með að vitna í textan sem á við.",
+                                "description": """Hérna setur þú inn hvað meigi bæta og
+                                breyta varðandi stafsetningu passaðu
+                                að benda skýrt á allar stafsetningarvillur
+                                með að vitna í textan sem á við.""",
                             },
                             "radleggingar": {
                                 "type": "string",
-                                "description": "Hérna setur þú inn hvað meigi bæta og breyta varðandi almennar raðleggingar. Farðu vel yfir hvernig minnisblöð eru yfir höfuð og hafðu það í huga",
+                                "description": """Hérna setur þú inn hvað meigi bæta og
+                                breyta varðandi almennar raðleggingar.
+                                Farðu vel yfir hvernig minnisblöð eru yfir höfuð
+                                og hafðu það í huga""",
                             },
                         },
                         "required": ["malfar", "stafsetning", "radleggingar"],

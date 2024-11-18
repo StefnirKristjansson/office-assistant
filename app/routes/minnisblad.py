@@ -20,6 +20,7 @@ from fastapi.templating import Jinja2Templates
 from docx import Document
 from dotenv import load_dotenv
 from openai import OpenAI
+from app.utils import extract_text_from_docx, send_text_to_openai
 
 
 templates = Jinja2Templates(directory="app/templates")
@@ -110,53 +111,6 @@ async def upload_file(
         return templates.TemplateResponse(
             "index.html", {"request": request, "error": str(e)}
         )
-
-
-def extract_text_from_docx(file):
-    """Extract text from a .docx file."""
-    doc = Document(file)
-    text = []
-    for paragraph in doc.paragraphs:
-        text.append(paragraph.text)
-    return "\n".join(text)
-
-
-async def send_text_to_openai(
-    text: str, response_format: dict
-) -> dict:  # pragma: no cover
-    """Send the text to the OpenAI API and return the response."""
-    # Using the OpenAI client as per your original
-    content_text = """Notandinn sendir þér texta sem þú átt að breyta í minnisblað.
-    Bættu í og styttu textan eftir þörfum og kaflaskiftu eins og þú sérð best. 
-    Passaðu að hafa kaflanna ekki of stutta ekki hafa fleirri en 2 kafla á blaðsíðu."""
-    messages = [
-        {
-            "role": "system",
-            "content": [
-                {
-                    "type": "text",
-                    "text": content_text,
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": text}],
-        },
-    ]
-
-    completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        temperature=1,
-        max_tokens=2048,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-        response_format=response_format,
-    )
-    response = json.loads(completion.choices[0].message.content)
-    return response
 
 
 def create_response_format(selected_chapters: list) -> dict:
