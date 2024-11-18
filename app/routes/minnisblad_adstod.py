@@ -6,6 +6,7 @@ from fastapi import (
     File,
     UploadFile,
     Depends,
+    HTTPException,
 )
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -13,7 +14,7 @@ from dotenv import load_dotenv
 from app.utils import (
     send_text_to_openai,
     get_token,
-    process_uploaded_file,  # Add the import
+    process_uploaded_file,
 )
 
 
@@ -42,19 +43,19 @@ async def upload_file(
         respond_format = create_response_format()
         openai_response = await send_text_to_openai(text, respond_format)
         return JSONResponse(content=openai_response)
-    except Exception as e:  # pylint: disable=broad-except
-        return templates.TemplateResponse(
-            "index.html", {"request": request, "error": str(e)}
-        )
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail="Invalid JSON response from OpenAI") from e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred") from e
 
 
 def create_response_format() -> dict:
     """Create the response format based on the selected chapters."""
-    base_response = base_response = {
+    base_response = {
         "type": "json_schema",
         "json_schema": {
             "name": "Minnisblad_adstod",
-            "schema": {  # Correcting to include 'schema' directly
+            "schema": {
                 "title": "Minnisblad_adstod",
                 "type": "object",
                 "properties": {

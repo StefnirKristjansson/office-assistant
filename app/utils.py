@@ -6,7 +6,7 @@ from fastapi import (
     HTTPException,
     Depends,
     status,
-    UploadFile  # Add this import
+    UploadFile
 )
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from dotenv import load_dotenv
@@ -39,9 +39,8 @@ def extract_text_from_docx(file):
 
 async def send_text_to_openai(
     text: str, response_format: dict
-) -> dict:  # pragma: no cover
+) -> dict:
     """Send the text to the OpenAI API and return the response."""
-    # Using the OpenAI client as per your original
     content_text = """Notendinn sendi þér minnisblað, farðu mjög varlega yfir það og
     finndu dæmi um önnur minnisblöð, 
     gefðu þér tíma að skoa Íslenskt málfar og stafsetningu."""
@@ -75,7 +74,7 @@ async def send_text_to_openai(
     return response
 
 
-def check_document_lenght(file) -> bool:
+def check_document_length(file) -> bool:
     """Check if the document is within the word limit and is a word document."""
     if (
         file.content_type
@@ -93,7 +92,7 @@ def check_document_lenght(file) -> bool:
 
 async def process_uploaded_file(file: UploadFile):
     """Helper function to process the uploaded file."""
-    if not check_document_lenght(file):
+    if not check_document_length(file):
         raise HTTPException(
             status_code=400,
             detail="The document must contain between 10 and 5000 words.",
