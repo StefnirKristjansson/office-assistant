@@ -12,49 +12,21 @@ from fastapi import (
     HTTPException,
     Form,
     Depends,
-    status,
 )
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.templating import Jinja2Templates
 from docx import Document
-from dotenv import load_dotenv
-from openai import OpenAI
-from app.utils import extract_text_from_docx, send_text_to_openai
+from app.utils import (
+    extract_text_from_docx,
+    send_text_to_openai,
+    check_document_lenght,
+    get_token,
+)
 
 
 templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter()
-
-load_dotenv()
-BEARER_TOKEN = os.getenv("BEARER_TOKEN")
-
-# Security scheme and token validation
-token_auth_scheme = HTTPBearer()
-
-
-def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_scheme)):
-    """Validate the token and return it if it is valid."""
-    if credentials.scheme != "Bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication scheme.",
-        )
-    if credentials.credentials != BEARER_TOKEN:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token.",
-        )
-    return credentials.credentials
-
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
-# Set the OpenAI API key globally
-
-OpenAI.api_key = openai_api_key
-client = OpenAI()
 
 
 @router.get("/minnisblad", response_class=HTMLResponse)
@@ -71,25 +43,13 @@ async def upload_file(
     _: str = Depends(get_token),
 ):
     """Process the uploaded file and return the modified document."""
-    if (
-        file.content_type
-        != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        or not file.filename.endswith(".docx")
-    ):
-        raise HTTPException(
-            status_code=400, detail="Invalid file type. Please upload a .docx file."
-        )
-
-    # Ensure the file pointer is at the beginning
-    file.file.seek(0)
-    text = extract_text_from_docx(file.file)
-
-    word_count = len(text.split())
-    if word_count > 5000 or word_count < 10:
+    if not check_document_lenght(file):
         raise HTTPException(
             status_code=400,
             detail="The document must contain between 10 and 5000 words.",
         )
+    file.file.seek(0)
+    text = extract_text_from_docx(file.file)
 
     try:
         selected_chapters = json.loads(chapters)

@@ -2,8 +2,14 @@
 
 import os
 import json
-from docx import Document
+from fastapi import (
+    HTTPException,
+    Depends,
+    status,
+)
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from dotenv import load_dotenv
+from docx import Document
 from openai import OpenAI
 
 load_dotenv()
@@ -14,6 +20,11 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 
 OpenAI.api_key = openai_api_key
 client = OpenAI()
+
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+
+# Security scheme and token validation
+token_auth_scheme = HTTPBearer()
 
 
 def extract_text_from_docx(file):
@@ -61,3 +72,34 @@ async def send_text_to_openai(
     )
     response = json.loads(completion.choices[0].message.content)
     return response
+
+
+def check_document_lenght(file) -> bool:
+    """Check if the document is within the word limit and is a word document."""
+    if (
+        file.content_type
+        != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        or not file.filename.endswith(".docx")
+    ):
+        return False
+    file.file.seek(0)
+    text = extract_text_from_docx(file.file)
+    word_count = len(text.split())
+    if word_count > 5000 or word_count < 10:
+        return False
+    return True
+
+
+def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_scheme)):
+    """Validate the token and return it if it is valid."""
+    if credentials.scheme != "Bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication scheme.",
+        )
+    if credentials.credentials != BEARER_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token.",
+        )
+    return credentials.credentials
