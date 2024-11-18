@@ -32,12 +32,13 @@ def mock_openai_response(mocker):
     return mock_response
 
 
-def test_upload_file_with_mocked_openai():  # pylint: disable=duplicate-code
+def test_upload_file_with_mocked_openai():
     """Test the upload_file route with a mocked OpenAI response."""
     with open("tests/test_document.docx", "rb") as file:
         token = BEARER_TOKEN
         response = client.post(
             "/minnisblad-adstod/upload/",
+            # pylint: disable=duplicate-code
             files={
                 "file": (
                     "test_document.docx",
@@ -45,6 +46,7 @@ def test_upload_file_with_mocked_openai():  # pylint: disable=duplicate-code
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 )
             },
+            # pylint: enable=duplicate-code
             headers={"Authorization": f"Bearer {token}"},
         )
     assert response.status_code == 200

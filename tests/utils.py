@@ -25,8 +25,12 @@ def upload_file_with_invalid_token(url: str, client: TestClient) -> dict:
     return response
 
 
-def upload_file_that_is_too_short(url: str, client: TestClient) -> dict:
+def upload_file_that_is_too_short(
+    url: str, client: TestClient, data: dict = None
+) -> dict:
     """Test the upload_file route with a document that is too short."""
+    if data is None:
+        data = {}
     with open("tests/test_document_short.docx", "rb") as file:
         token = BEARER_TOKEN
         response = client.post(
@@ -38,13 +42,18 @@ def upload_file_that_is_too_short(url: str, client: TestClient) -> dict:
                     "text/plain",
                 )
             },
+            data=data,
             headers={"Authorization": f"Bearer {token}"},
         )
     return response
 
 
-def upload_wrong_file_type(url: str, client: TestClient) -> dict:
+def upload_wrong_file_type(
+    url: str, client: TestClient, data: dict = None
+) -> dict:
     """Test the upload_file route with a file that is not a .docx file."""
+    if data is None:
+        data = {}
     with open("tests/test_document.txt", "rb") as file:
         token = BEARER_TOKEN
 
@@ -57,6 +66,7 @@ def upload_wrong_file_type(url: str, client: TestClient) -> dict:
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 )
             },
+            data=data,
             headers={"Authorization": f"Bearer {token}"},
         )
     return response

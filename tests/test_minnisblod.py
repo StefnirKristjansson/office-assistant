@@ -69,7 +69,11 @@ def test_upload_file_with_invalid_token():
 
 def test_upload_file_that_is_too_short():
     """Test the upload_file route with a document that is too short."""
-    response = upload_file_that_is_too_short("/minnisblad/upload/", client)
+    response = upload_file_that_is_too_short(
+        "/minnisblad/upload/",
+        client,
+        data={"chapters": '["inngangur", "samantekt", "aaetlun", "markmid"]'},
+    )
     assert response.status_code == 400
     assert response.json() == {
         "detail": "The document must contain between 10 and 5000 words."
@@ -78,5 +82,9 @@ def test_upload_file_that_is_too_short():
 
 def test_upload_wrong_file_type():
     """Test the upload_file route with a file that is not a .docx file."""
-    response = upload_wrong_file_type("/minnisblad/upload/", client)
+    response = upload_wrong_file_type(
+        "/minnisblad/upload/",
+        client,
+        data={"chapters": '["inngangur", "samantekt", "aaetlun", "markmid"]'},
+    )
     assert response.status_code == 400
