@@ -35,7 +35,6 @@ async def minnisblad(request: Request):
 
 @router.post("/minnisblad/upload/")
 async def upload_file(
-    request: Request,
     file: UploadFile = File(...),
     chapters: str = Form(...),
     _: str = Depends(get_token),

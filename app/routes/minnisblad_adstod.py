@@ -1,5 +1,6 @@
 """This module contains the routes for the minnisblad application."""
 
+import json
 from fastapi import (
     APIRouter,
     Request,
@@ -33,7 +34,6 @@ async def minnisblad_adstod(request: Request):
 
 @router.post("/minnisblad-adstod/upload/")
 async def upload_file(
-    request: Request,
     file: UploadFile = File(...),
     _: str = Depends(get_token),
 ):
@@ -44,9 +44,13 @@ async def upload_file(
         openai_response = await send_text_to_openai(text, respond_format)
         return JSONResponse(content=openai_response)
     except json.JSONDecodeError as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON response from OpenAI") from e
+        raise HTTPException(
+            status_code=400, detail="Invalid JSON response from OpenAI"
+        ) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail="An unexpected error occurred") from e
+        raise HTTPException(
+            status_code=500, detail="An unexpected error occurred"
+        ) from e
 
 
 def create_response_format() -> dict:
