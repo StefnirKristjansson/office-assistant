@@ -6,6 +6,7 @@ from fastapi import (
     HTTPException,
     Depends,
     status,
+    UploadFile  # Add this import
 )
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from dotenv import load_dotenv
@@ -88,6 +89,17 @@ def check_document_lenght(file) -> bool:
     if word_count > 5000 or word_count < 10:
         return False
     return True
+
+
+async def process_uploaded_file(file: UploadFile):
+    """Helper function to process the uploaded file."""
+    if not check_document_lenght(file):
+        raise HTTPException(
+            status_code=400,
+            detail="The document must contain between 10 and 5000 words.",
+        )
+    file.file.seek(0)
+    return extract_text_from_docx(file.file)
 
 
 def get_token(credentials: HTTPAuthorizationCredentials = Depends(token_auth_scheme)):

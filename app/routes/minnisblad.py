@@ -1,6 +1,5 @@
 """This module contains the routes for the minnisblad application."""
 
-import os
 from datetime import datetime
 import json
 from tempfile import NamedTemporaryFile
@@ -9,7 +8,6 @@ from fastapi import (
     Request,
     File,
     UploadFile,
-    HTTPException,
     Form,
     Depends,
 )
@@ -17,10 +15,9 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from docx import Document
 from app.utils import (
-    extract_text_from_docx,
     send_text_to_openai,
-    check_document_lenght,
     get_token,
+    process_uploaded_file,  # Add the import
 )
 
 
@@ -43,14 +40,7 @@ async def upload_file(
     _: str = Depends(get_token),
 ):
     """Process the uploaded file and return the modified document."""
-    if not check_document_lenght(file):
-        raise HTTPException(
-            status_code=400,
-            detail="The document must contain between 10 and 5000 words.",
-        )
-    file.file.seek(0)
-    text = extract_text_from_docx(file.file)
-
+    text = await process_uploaded_file(file)
     try:
         selected_chapters = json.loads(chapters)
         respond_format = create_response_format(selected_chapters)
