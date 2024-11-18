@@ -1,18 +1,11 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <main class="container mx-auto px-4 py-8 flex-grow">
   <h1 class="text-3xl font-bold mb-4">Welcome to Office Assistant</h1>
-  <p class="mb-4">
-    This is the main page of the Office Assistant application.
-  </p>
+  <p class="mb-4">This is the main page of the Office Assistant application.</p>
   <form id="upload-form" class="bg-white p-6 rounded-lg shadow-md">
     <!-- Token input field -->
     <div class="mb-4">
-      <label
-        for="token"
-        class="block text-sm font-medium text-gray-700 mb-2"
-      >
+      <label for="token" class="block text-sm font-medium text-gray-700 mb-2">
         Enter your token:
       </label>
       <input
@@ -61,21 +54,11 @@
         <label for="samantekt">Samantekt</label>
       </div>
       <div>
-        <input
-          type="checkbox"
-          id="aaetlun"
-          name="chapters"
-          value="aaetlun"
-        />
+        <input type="checkbox" id="aaetlun" name="chapters" value="aaetlun" />
         <label for="aaetlun">Áætlun</label>
       </div>
       <div>
-        <input
-          type="checkbox"
-          id="markmid"
-          name="chapters"
-          value="markmid"
-        />
+        <input type="checkbox" id="markmid" name="chapters" value="markmid" />
         <label for="markmid">Markmið</label>
       </div>
     </div>
@@ -93,8 +76,8 @@
     id="loading"
     class="mt-4 p-4 bg-blue-100 text-blue-800 rounded-lg hidden"
   >
-    <i class="fas fa-spinner fa-spin mr-2"></i> Processing... This may take
-    up to a minute. Please do not refresh the page.
+    <i class="fas fa-spinner fa-spin mr-2"></i> Processing... This may take up
+    to a minute. Please do not refresh the page.
   </div>
 
   <!-- Error message container -->
@@ -105,5 +88,86 @@
     <h2 class="text-xl font-bold mb-2">Error:</h2>
     <p id="error-text"></p>
   </div>
+
+  <!-- Success message container -->
+  <div
+    id="success-message"
+    class="mt-4 p-4 bg-green-100 text-green-800 rounded-lg hidden"
+  >
+    <h2 class="text-xl font-bold mb-2">Success:</h2>
+    <p id="success-text"></p>
+  </div>
+
+  <!-- JSON response container -->
+  <div
+    id="malfar-message"
+    class="mt-4 p-4 bg-green-100 text-gray-800 rounded-lg hidden"
+  >
+    <h2 class="text-xl font-bold mb-2">
+      Málfar
+    </h2>
+    <pre id="malfar-text"  style="white-space: pre-wrap; word-wrap: break-word;"</pre>
+  </div>
+
+  <!--radleggingar div-->
+  <div
+    id="radleggingar-message"
+    class="mt-4 p-4 bg-green-100 text-gray-800 rounded-lg"
+  >
+    <h2 class="text-xl font-bold mb-2">
+      Ráðleggingar
+    </h2>
+    <pre id="radleggingar-text"  style="white-space: pre-wrap; word-wrap: break-word;"</pre>
+  </div>
+
+  <!-- Input fields for JSON response -->
+  <div id="json-input-fields" class="mt-4 hidden">
+    <div class="mb-4">
+      <label for="malfar" class="block text-sm font-medium text-gray-700 mb-2">
+        Málfar:
+      </label>
+      <input
+        type="text"
+        id="malfar"
+        name="malfar"
+        class="w-full border border-gray-300 p-2 rounded-md"
+        readonly
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="stafsetning"
+        class="block text-sm font-medium text-gray-700 mb-2"
+      >
+        Stafsetning:
+      </label>
+      <input
+        type="text"
+        id="stafsetning"
+        name="stafsetning"
+        class="w-full border border-gray-300 p-2 rounded-md"
+        readonly
+      />
+    </div>
+    <div class="mb-4">
+      <label
+        for="radleggingar"
+        class="block text-sm font-medium text-gray-700 mb-2"
+      >
+        Ráðleggingar:
+      </label>
+      <input
+        type="text"
+        id="radleggingar"
+        name="radleggingar"
+        class="w-full border border-gray-300 p-2 rounded-md"
+        readonly
+      />
+    </div>
+  </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/static/minnisblad-adstod.js"></script>
+
 {% endblock %}

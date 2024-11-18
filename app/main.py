@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.routes.minnisblad import router as minnisblad_router
+from app.routes.minnisblad_adstod import router as minnisblad_adstod_router
 from app.routes.index import router as index_router
 
 load_dotenv()
@@ -13,6 +14,8 @@ load_dotenv()
 app = FastAPI()
 app.include_router(minnisblad_router)
 app.include_router(index_router)
+app.include_router(minnisblad_adstod_router)
+
 
 # serve static files
 app.mount(

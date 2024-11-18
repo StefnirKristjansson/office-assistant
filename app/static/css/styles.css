@@ -38,11 +38,45 @@ button:hover {
     border-radius: 5px;
     margin-top: 10px;
 }
+.malfar-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    white-space: pre-wrap; /* Allows text to wrap and respects line breaks */
+    word-wrap: break-word; /* Breaks long words to avoid overflow */
 
+}
+#malfar-text {
+    white-space: pre-wrap; /* Enables text wrapping within the <pre> tag */
+    word-wrap: break-word; /* Allows long words to break and wrap within the container */
+}
 .error-message {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* Styles for the new input fields and JSON response container */
+#json-response {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+}
+
+#json-input-fields input {
+    background-color: #e0f7fa;
+    color: #00695c;
+    border: 1px solid #004d40;
     padding: 10px;
     border-radius: 5px;
     margin-top: 10px;
