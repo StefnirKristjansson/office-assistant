@@ -17,15 +17,12 @@ BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 def mock_openai_response(mocker):
     """Mock the response from the OpenAI API."""
     mock_response = {
-        "titill": "Test Title",
-        "Inngangur": "Test Introduction",
-        "kaflar": [{"chapter_title": "Test Chapter", "content": "Test Content"}],
-        "Samantekt": "Test Summary",
-        "aaetlun": "Test Plan",
-        "markmid": "Test Objective",
+        "malfar": "Mocked response for malfar.",
+        "stafsetning": "Mocked response for stafsetning.",
+        "radleggingar": "Mocked response for ráðleggingar.",
     }
     mocker.patch(
-        "app.routes.minnisblad.send_text_to_openai", return_value=mock_response
+        "app.routes.minnisblad_adstod.send_text_to_openai", return_value=mock_response
     )
     return mock_response
 
@@ -35,7 +32,7 @@ def test_upload_file_with_mocked_openai():
     with open("tests/test_document.docx", "rb") as file:
         token = BEARER_TOKEN
         response = client.post(
-            "/minnisblad/upload/",
+            "/minnisblad-adstod/upload/",
             files={
                 "file": (
                     "test_document.docx",
@@ -47,12 +44,12 @@ def test_upload_file_with_mocked_openai():
             headers={"Authorization": f"Bearer {token}"},
         )
     assert response.status_code == 200
-    # Ensure the response includes a docx file
-    assert (
-        response.headers["content-type"]
-        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
-    assert response.content is not None
+    # The response should include a JSON response
+    assert response.json() == {
+        "malfar": "Mocked response for malfar.",
+        "stafsetning": "Mocked response for stafsetning.",
+        "radleggingar": "Mocked response for ráðleggingar.",
+    }
 
 
 def test_upload_file_with_invalid_token():
@@ -60,7 +57,7 @@ def test_upload_file_with_invalid_token():
     with open("tests/test_document.docx", "rb") as file:
         token = "invalid_token"
         response = client.post(
-            "/minnisblad/upload/",
+            "/minnisblad-adstod/upload/",
             files={
                 "file": (
                     "test_document.docx",
@@ -81,7 +78,7 @@ def test_upload_file_that_is_too_short():
         token = BEARER_TOKEN
 
         response = client.post(
-            "/minnisblad/upload/",
+            "/minnisblad-adstod/upload/",
             files={
                 "file": (
                     "test_document_short.docx",
@@ -104,7 +101,7 @@ def test_upload_wrong_file_type():
         token = BEARER_TOKEN
 
         response = client.post(
-            "/minnisblad/upload/",
+            "/minnisblad-adstod/upload/",
             files={
                 "file": (
                     "test_document.txt",

@@ -125,18 +125,18 @@ def create_response_format(selected_chapters: list) -> dict:
         base_response["json_schema"]["schema"]["required"].append("Samantekt")
 
     if "aaetlun" in selected_chapters:
-        base_response["json_schema"]["schema"]["properties"]["Áætlun"] = {
+        base_response["json_schema"]["schema"]["properties"]["aaetlun"] = {
             "type": "string",
             "description": aaetlun_description,
         }
-        base_response["json_schema"]["schema"]["required"].append("Áætlun")
+        base_response["json_schema"]["schema"]["required"].append("aaetlun")
 
     if "markmid" in selected_chapters:
-        base_response["json_schema"]["schema"]["properties"]["Markmið"] = {
+        base_response["json_schema"]["schema"]["properties"]["markmid"] = {
             "type": "string",
             "description": markmid_description,
         }
-        base_response["json_schema"]["schema"]["required"].append("Markmið")
+        base_response["json_schema"]["schema"]["required"].append("markmid")
 
     return base_response
 
@@ -155,13 +155,13 @@ def create_docx_from_json(response_json: dict) -> str:
         doc.add_paragraph(response_json["Inngangur"])
 
     # if there is markmid, add it to the document
-    if "Markmið" in response_json:
+    if "markmid" in response_json:
         doc.add_heading("Markmið", level=2)
-        doc.add_paragraph(response_json["Markmið"])
+        doc.add_paragraph(response_json["markmid"])
 
-    if "Áætlun" in response_json:
+    if "aaetlun" in response_json:
         doc.add_heading("Áætlun", level=2)
-        doc.add_paragraph(response_json["Áætlun"])
+        doc.add_paragraph(response_json["aaetlun"])
 
     # if there are chapters, add them to the document
     if "kaflar" in response_json:
