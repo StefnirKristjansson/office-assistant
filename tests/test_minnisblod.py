@@ -4,12 +4,14 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.utils import send_text_to_openai
 from tests.utils import (
     upload_file_with_invalid_token,
     upload_file_that_is_too_short,
     upload_wrong_file_type,
+    upload_file_with_mocked_openai,
 )
-from app.utils import send_text_to_openai
+
 
 client = TestClient(app)
 
@@ -38,20 +40,7 @@ def mock_openai_response(mocker):
 
 def test_upload_file_with_mocked_openai():  # pylint: disable=duplicate-code
     """Test the upload_file route with a mocked OpenAI response."""
-    with open("tests/test_document.docx", "rb") as file:
-        token = BEARER_TOKEN
-        response = client.post(
-            "/minnisblad/upload/",
-            files={
-                "file": (
-                    "test_document.docx",
-                    file,
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                )
-            },
-            data={"chapters": '["inngangur", "samantekt", "aaetlun", "markmid"]'},
-            headers={"Authorization": f"Bearer {token}"},
-        )
+    response = upload_file_with_mocked_openai("/minnisblad/upload/", client)
     assert response.status_code == 200
     # Ensure the response includes a docx file
     assert (
@@ -98,21 +87,7 @@ def test_upload_file_unexpected_error(mocker):
         "app.routes.minnisblad.send_text_to_openai",
         side_effect=Exception("Test exception"),
     )
-
-    with open("tests/test_document.docx", "rb") as file:
-        token = BEARER_TOKEN
-        response = client.post(
-            "/minnisblad/upload/",
-            files={
-                "file": (
-                    "test_document.docx",
-                    file,
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                )
-            },
-            data={"chapters": '["inngangur", "samantekt", "aaetlun", "markmid"]'},
-            headers={"Authorization": f"Bearer {token}"},
-        )
+    response = upload_file_with_mocked_openai("/minnisblad/upload/", client)
     assert response.status_code == 500
     assert response.json() == {"detail": "An unexpected error occurred"}
 
@@ -124,7 +99,9 @@ async def test_send_text_to_openai(mocker):
     mock_completion = mocker.Mock()
     mock_completion.choices = [mocker.Mock()]
     mock_completion.choices[0].message.content = '{"result": "Test Response"}'
-    mocker.patch('app.utils.client.chat.completions.create', return_value=mock_completion)
+    mocker.patch(
+        "app.utils.client.chat.completions.create", return_value=mock_completion
+    )
     text = "This is a test text."
     response_format = {"type": "json"}
     response = await send_text_to_openai(text, response_format)

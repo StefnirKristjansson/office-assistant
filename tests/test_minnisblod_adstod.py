@@ -8,6 +8,7 @@ from tests.utils import (
     upload_file_with_invalid_token,
     upload_file_that_is_too_short,
     upload_wrong_file_type,
+    upload_file_with_mocked_openai,
 )
 
 client = TestClient(app)
@@ -87,20 +88,8 @@ def test_upload_file_unexpected_error(mocker):
         "app.routes.minnisblad_adstod.send_text_to_openai",
         side_effect=Exception("Test exception"),
     )
-
-    with open("tests/test_document.docx", "rb") as file:
-        token = BEARER_TOKEN
-        response = client.post(
-            "/minnisblad-adstod/upload/",
-            files={
-                "file": (
-                    "test_document.docx",
-                    file,
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                )
-            },
-            data={"chapters": '["inngangur", "samantekt", "aaetlun", "markmid"]'},
-            headers={"Authorization": f"Bearer {token}"},
-        )
+    response = upload_file_with_mocked_openai(
+        "/minnisblad-adstod/upload/", client
+    )
     assert response.status_code == 500
     assert response.json() == {"detail": "An unexpected error occurred"}
