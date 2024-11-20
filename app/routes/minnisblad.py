@@ -10,7 +10,6 @@ from fastapi import (
     UploadFile,
     Form,
     Depends,
-    HTTPException,
 )
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -19,6 +18,7 @@ from app.utils import (
     send_text_to_openai,
     get_token,
     process_uploaded_file,
+    handle_unexpected_error,
 )
 
 
@@ -54,10 +54,8 @@ async def upload_file(
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             filename=filename,
         )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail="An unexpected error occurred"
-        ) from e
+    except Exception as e:  # pylint: disable=broad-except
+        handle_unexpected_error(e)
 
 
 def create_response_format(selected_chapters: list) -> dict:

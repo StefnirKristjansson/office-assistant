@@ -23,6 +23,13 @@ BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 token_auth_scheme = HTTPBearer()
 
 
+def handle_unexpected_error(e: Exception):
+    """
+    Utility function to handle unexpected errors.
+    """
+    raise HTTPException(status_code=500, detail="An unexpected error occurred") from e
+
+
 def extract_text_from_docx(file):
     """Extract text from a .docx file."""
     doc = Document(file)
@@ -32,9 +39,7 @@ def extract_text_from_docx(file):
     return "\n".join(text)
 
 
-async def send_text_to_openai(
-    text: str, response_format: dict
-) -> dict:
+async def send_text_to_openai(text: str, response_format: dict) -> dict:
     """Send the text to the OpenAI API and return the response."""
     content_text = """Notendinn sendi þér minnisblað, farðu mjög varlega yfir það og
     finndu dæmi um önnur minnisblöð, 

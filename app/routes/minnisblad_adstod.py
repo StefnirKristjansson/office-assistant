@@ -1,13 +1,11 @@
 """This module contains the routes for the minnisblad application."""
 
-import json
 from fastapi import (
     APIRouter,
     Request,
     File,
     UploadFile,
     Depends,
-    HTTPException,
 )
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -16,6 +14,7 @@ from app.utils import (
     send_text_to_openai,
     get_token,
     process_uploaded_file,
+    handle_unexpected_error,
 )
 
 
@@ -40,18 +39,16 @@ async def upload_file(
     """Process the uploaded file and return the JSON response."""
     text = await process_uploaded_file(file)
     try:
-        respond_format = create_response_format()
+        respond_format = create_minnisblad_adstod_response_format()
         openai_response = await send_text_to_openai(text, respond_format)
         return JSONResponse(content=openai_response)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail="An unexpected error occurred"
-        ) from e
+    except Exception as e:  # pylint: disable=broad-except
+        handle_unexpected_error(e)
 
 
-def create_response_format() -> dict:
-    """Create the response format based on the selected chapters."""
-    base_response = {
+def create_minnisblad_adstod_response_format() -> dict:
+    """Create the response format"""
+    response = {
         "type": "json_schema",
         "json_schema": {
             "name": "Minnisblad_adstod",
@@ -106,4 +103,4 @@ def create_response_format() -> dict:
         },
     }
 
-    return base_response
+    return response
