@@ -2,12 +2,7 @@
 
 import os
 import json
-from fastapi import (
-    HTTPException,
-    Depends,
-    status,
-    UploadFile  # Add this import
-)
+from fastapi import HTTPException, Depends, status, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from dotenv import load_dotenv
 from docx import Document
@@ -28,6 +23,13 @@ BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 token_auth_scheme = HTTPBearer()
 
 
+def handle_unexpected_error(e: Exception):
+    """
+    Utility function to handle unexpected errors.
+    """
+    raise HTTPException(status_code=500, detail="An unexpected error occurred") from e
+
+
 def extract_text_from_docx(file):
     """Extract text from a .docx file."""
     doc = Document(file)
@@ -37,11 +39,8 @@ def extract_text_from_docx(file):
     return "\n".join(text)
 
 
-async def send_text_to_openai(
-    text: str, response_format: dict
-) -> dict:  # pragma: no cover
+async def send_text_to_openai(text: str, response_format: dict) -> dict:
     """Send the text to the OpenAI API and return the response."""
-    # Using the OpenAI client as per your original
     content_text = """Notendinn sendi þér minnisblað, farðu mjög varlega yfir það og
     finndu dæmi um önnur minnisblöð, 
     gefðu þér tíma að skoa Íslenskt málfar og stafsetningu."""
@@ -75,7 +74,7 @@ async def send_text_to_openai(
     return response
 
 
-def check_document_lenght(file) -> bool:
+def check_document_length(file) -> bool:
     """Check if the document is within the word limit and is a word document."""
     if (
         file.content_type
@@ -93,7 +92,7 @@ def check_document_lenght(file) -> bool:
 
 async def process_uploaded_file(file: UploadFile):
     """Helper function to process the uploaded file."""
-    if not check_document_lenght(file):
+    if not check_document_length(file):
         raise HTTPException(
             status_code=400,
             detail="The document must contain between 10 and 5000 words.",

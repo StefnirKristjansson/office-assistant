@@ -13,7 +13,8 @@ from dotenv import load_dotenv
 from app.utils import (
     send_text_to_openai,
     get_token,
-    process_uploaded_file,  # Add the import
+    process_uploaded_file,
+    handle_unexpected_error,
 )
 
 
@@ -32,29 +33,26 @@ async def minnisblad_adstod(request: Request):
 
 @router.post("/minnisblad-adstod/upload/")
 async def upload_file(
-    request: Request,
     file: UploadFile = File(...),
     _: str = Depends(get_token),
 ):
     """Process the uploaded file and return the JSON response."""
     text = await process_uploaded_file(file)
     try:
-        respond_format = create_response_format()
+        respond_format = create_minnisblad_adstod_response_format()
         openai_response = await send_text_to_openai(text, respond_format)
         return JSONResponse(content=openai_response)
     except Exception as e:  # pylint: disable=broad-except
-        return templates.TemplateResponse(
-            "index.html", {"request": request, "error": str(e)}
-        )
+        handle_unexpected_error(e)
 
 
-def create_response_format() -> dict:
-    """Create the response format based on the selected chapters."""
-    base_response = base_response = {
+def create_minnisblad_adstod_response_format() -> dict:
+    """Create the response format"""
+    response = {
         "type": "json_schema",
         "json_schema": {
             "name": "Minnisblad_adstod",
-            "schema": {  # Correcting to include 'schema' directly
+            "schema": {
                 "title": "Minnisblad_adstod",
                 "type": "object",
                 "properties": {
@@ -105,4 +103,4 @@ def create_response_format() -> dict:
         },
     }
 
-    return base_response
+    return response

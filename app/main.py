@@ -22,5 +22,5 @@ app.mount(
     "/static", StaticFiles(directory="app/static"), name="static"
 )  # Ensure 'name' is set to "static"
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     uvicorn.run("app.main:app", port=8080, reload=False, access_log=False)
