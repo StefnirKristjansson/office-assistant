@@ -43,10 +43,6 @@ async def upload_file(
         respond_format = create_response_format()
         openai_response = await send_text_to_openai(text, respond_format)
         return JSONResponse(content=openai_response)
-    except json.JSONDecodeError as e:
-        raise HTTPException(
-            status_code=400, detail="Invalid JSON response from OpenAI"
-        ) from e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail="An unexpected error occurred"

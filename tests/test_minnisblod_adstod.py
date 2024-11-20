@@ -78,3 +78,29 @@ def test_upload_wrong_file_type():
     """Test the upload_file route with a file that is not a .docx file."""
     response = upload_wrong_file_type("/minnisblad-adstod/upload/", client)
     assert response.status_code == 400
+
+
+def test_upload_file_unexpected_error(mocker):
+    """Test the upload_file route when an unexpected error occurs."""
+    # Mock send_text_to_openai to raise an exception
+    mocker.patch(
+        "app.routes.minnisblad_adstod.send_text_to_openai",
+        side_effect=Exception("Test exception"),
+    )
+
+    with open("tests/test_document.docx", "rb") as file:
+        token = BEARER_TOKEN
+        response = client.post(
+            "/minnisblad-adstod/upload/",
+            files={
+                "file": (
+                    "test_document.docx",
+                    file,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+            },
+            data={"chapters": '["inngangur", "samantekt", "aaetlun", "markmid"]'},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    assert response.status_code == 500
+    assert response.json() == {"detail": "An unexpected error occurred"}

@@ -2,12 +2,7 @@
 
 import os
 import json
-from fastapi import (
-    HTTPException,
-    Depends,
-    status,
-    UploadFile
-)
+from fastapi import HTTPException, Depends, status, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from dotenv import load_dotenv
 from docx import Document

@@ -54,10 +54,10 @@ async def upload_file(
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             filename=filename,
         )
-    except json.JSONDecodeError as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON response from OpenAI") from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail="An unexpected error occurred") from e
+        raise HTTPException(
+            status_code=500, detail="An unexpected error occurred"
+        ) from e
 
 
 def create_response_format(selected_chapters: list) -> dict:
