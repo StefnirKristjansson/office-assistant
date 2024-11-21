@@ -1,20 +1,9 @@
+// chat.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const chatForm = document.getElementById("chat-form");
   const messageInput = document.getElementById("message-input");
   const chatContainer = document.getElementById("chat-container");
-
-  const randomResponses = [
-    "I'm sorry, could you please clarify?",
-    "That's interesting!",
-    "Could you tell me more?",
-    "I'm here to help!",
-    "Let me think about that.",
-    "Absolutely!",
-    "I'm not sure I understand.",
-    "Can you provide an example?",
-    "Sure, let's discuss that.",
-    "Thank you for sharing that.",
-  ];
 
   chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -26,32 +15,52 @@ document.addEventListener("DOMContentLoaded", () => {
     const userMessageDiv = document.createElement("div");
     userMessageDiv.classList.add("mb-4", "flex", "justify-end");
     userMessageDiv.innerHTML = `
-        <div class="bg-blue-500 text-white p-4 rounded-lg max-w-md">
-          <p>${userMessage}</p>
-        </div>
-      `;
+      <div class="bg-blue-500 text-white p-4 rounded-lg max-w-md">
+        <p>${userMessage}</p>
+      </div>
+    `;
     chatContainer.appendChild(userMessageDiv);
     messageInput.value = "";
 
     // Scroll to the bottom
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    // Simulate assistant response
-    setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * randomResponses.length);
-      const assistantMessage = randomResponses[randomIndex];
+    // Send the user's message to the backend
+    fetch("/adstod/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: userMessage }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Display assistant's response
+        const assistantMessage = data.content; // Adjust based on your backend response structure
 
-      const assistantMessageDiv = document.createElement("div");
-      assistantMessageDiv.classList.add("mb-4");
-      assistantMessageDiv.innerHTML = `
+        const assistantMessageDiv = document.createElement("div");
+        assistantMessageDiv.classList.add("mb-4");
+        assistantMessageDiv.innerHTML = `
           <div class="bg-gray-200 p-4 rounded-lg max-w-md">
             <p class="text-gray-800">${assistantMessage}</p>
           </div>
         `;
-      chatContainer.appendChild(assistantMessageDiv);
+        chatContainer.appendChild(assistantMessageDiv);
 
-      // Scroll to the bottom
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }, 1000); // Simulate response delay
+        // Scroll to the bottom
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Optionally display an error message in the chat
+        const errorMessageDiv = document.createElement("div");
+        errorMessageDiv.classList.add("mb-4");
+        errorMessageDiv.innerHTML = `
+          <div class="bg-red-200 p-4 rounded-lg max-w-md">
+            <p class="text-red-800">An error occurred. Please try again.</p>
+          </div>
+        `;
+        chatContainer.appendChild(errorMessageDiv);
+      });
   });
 });
