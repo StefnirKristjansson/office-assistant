@@ -1,98 +1,45 @@
-{% extends "base.html" %} {% block content %}
-<main class="container mx-auto px-4 py-8 flex-grow">
-  <h1 class="text-3xl font-bold mb-4">Skapa minnisblöð</h1>
-  <p class="mb-4">
-    Hér getur þú hlaðið upp Word skjali með upplýsingum fyrir minnisblað og
-    fengið útfillt minnisblað til baka.
-  </p>
-  <p class="mb-4">
-    Ekki hlaða neinu upp sem er mjög viðkvæmt og mætti ekki hlaða upp á netið.
-  </p>
-  <form id="upload-form" class="bg-white p-6 rounded-lg shadow-md">
-    <!-- Token input field -->
+{% extends "base.html" %}
+{% block content %}
+<main class="container mx-auto px-4 py-8 flex-grow flex flex-col">
+  <!-- Chat messages -->
+  <div id="chat-container" class="flex-grow overflow-y-auto mb-4">
+    <!-- Hardcoded messages -->
     <div class="mb-4">
-      <label for="token" class="block text-sm font-medium text-gray-700 mb-2">
-        Likilorð:
-      </label>
-      <input
-        type="text"
-        id="token"
-        name="token"
-        class="w-full border border-gray-300 p-2 rounded-md"
-        required
-      />
+      <!-- Assistant message -->
+      <div class="bg-gray-200 p-4 rounded-lg max-w-md">
+        <p class="text-gray-800">Hello! How can I assist you today?</p>
+      </div>
     </div>
+    <div class="mb-4 flex justify-end">
+      <!-- User message -->
+      <div class="bg-blue-500 text-white p-4 rounded-lg max-w-md">
+        <p>Can you tell me about the weather?</p>
+      </div>
+    </div>
+    <div class="mb-4">
+      <!-- Assistant message -->
+      <div class="bg-gray-200 p-4 rounded-lg max-w-md">
+        <p class="text-gray-800">Sure! It's sunny with a high of 25°C today.</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- File input -->
-    <label for="file" class="block text-sm font-medium text-gray-700 mb-2">
-      Choose a .docx file to upload:
-    </label>
+  <!-- Input area -->
+  <form id="chat-form" class="flex">
     <input
-      type="file"
-      name="file"
-      id="file"
-      accept=".docx"
-      class="mb-4"
+      type="text"
+      id="message-input"
+      name="message"
+      class="flex-grow border border-gray-300 p-2 rounded-l-md"
+      placeholder="Type your message..."
       required
     />
-
-    <!-- Checkboxes for chapters -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-2">
-        Select chapters to include:
-      </label>
-      <div>
-        <input
-          type="checkbox"
-          id="inngangur"
-          name="chapters"
-          value="inngangur"
-        />
-        <label for="inngangur">Inngangur</label>
-      </div>
-      <div>
-        <input
-          type="checkbox"
-          id="samantekt"
-          name="chapters"
-          value="samantekt"
-        />
-        <label for="samantekt">Samantekt</label>
-      </div>
-      <div>
-        <input type="checkbox" id="aaetlun" name="chapters" value="aaetlun" />
-        <label for="aaetlun">Áætlun</label>
-      </div>
-      <div>
-        <input type="checkbox" id="markmid" name="chapters" value="markmid" />
-        <label for="markmid">Markmið</label>
-      </div>
-    </div>
-
     <button
       type="submit"
-      class="bg-blue-500 text-white px-4 py-2 rounded-md inline-flex items-center"
+      class="bg-blue-500 text-white px-4 py-2 rounded-r-md"
     >
-      <i class="fas fa-upload mr-2"></i> Upload
+      Send
     </button>
   </form>
-
-  <!-- Loading icon and message -->
-  <div
-    id="loading"
-    class="mt-4 p-4 bg-blue-100 text-blue-800 rounded-lg hidden"
-  >
-    <i class="fas fa-spinner fa-spin mr-2"></i> Í vinnslu... getur tekið dáldinn
-    tíma ekki endurhlaða síðuna á meðan verið að vinna.
-  </div>
-
-  <!-- Error message container -->
-  <div
-    id="error-message"
-    class="mt-4 p-4 bg-red-100 text-red-800 rounded-lg hidden"
-  >
-    <h2 class="text-xl font-bold mb-2">Error:</h2>
-    <p id="error-text"></p>
-  </div>
 </main>
 {% endblock %}
