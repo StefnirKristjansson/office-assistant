@@ -1,27 +1,8 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <main class="container mx-auto px-4 py-8 flex-grow flex flex-col">
   <!-- Chat messages -->
   <div id="chat-container" class="flex-grow overflow-y-auto mb-4">
-    <!-- Hardcoded messages -->
-    <div class="mb-4">
-      <!-- Assistant message -->
-      <div class="bg-gray-200 p-4 rounded-lg max-w-md">
-        <p class="text-gray-800">Hello! How can I assist you today?</p>
-      </div>
-    </div>
-    <div class="mb-4 flex justify-end">
-      <!-- User message -->
-      <div class="bg-blue-500 text-white p-4 rounded-lg max-w-md">
-        <p>Can you tell me about the weather?</p>
-      </div>
-    </div>
-    <div class="mb-4">
-      <!-- Assistant message -->
-      <div class="bg-gray-200 p-4 rounded-lg max-w-md">
-        <p class="text-gray-800">Sure! It's sunny with a high of 25°C today.</p>
-      </div>
-    </div>
+    <!-- Existing hardcoded messages can be removed if not needed -->
   </div>
 
   <!-- Input area -->
@@ -34,12 +15,12 @@
       placeholder="Type your message..."
       required
     />
-    <button
-      type="submit"
-      class="bg-blue-500 text-white px-4 py-2 rounded-r-md"
-    >
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md">
       Send
     </button>
   </form>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/static/assistant.js"></script>
 {% endblock %}
