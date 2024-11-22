@@ -48,7 +48,6 @@ async def adstod_post():
         data = messages.data
         message = data[0]
         text = message.content[0]
-        a_message = text.text
         the_message = text.text.value
     else:
         return JSONResponse(
