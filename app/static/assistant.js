@@ -1,5 +1,3 @@
-// chat.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const chatForm = document.getElementById("chat-form");
   const messageInput = document.getElementById("message-input");
@@ -35,17 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        // Display assistant's response
-        const assistantMessage = data.content; // Adjust based on your backend response structure
-
-        const assistantMessageDiv = document.createElement("div");
-        assistantMessageDiv.classList.add("mb-4");
-        assistantMessageDiv.innerHTML = `
-          <div class="bg-gray-200 p-4 rounded-lg max-w-md">
-            <p class="text-gray-800">${assistantMessage}</p>
-          </div>
-        `;
-        chatContainer.appendChild(assistantMessageDiv);
+        // Display the entire chat history
+        chatContainer.innerHTML = "";
+        data.history.forEach((msg) => {
+          const messageDiv = document.createElement("div");
+          messageDiv.classList.add("mb-4", msg.role === "user" ? "flex" : "justify-end");
+          messageDiv.innerHTML = `
+            <div class="${msg.role === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"} p-4 rounded-lg max-w-md">
+              <p>${msg.content}</p>
+            </div>
+          `;
+          chatContainer.appendChild(messageDiv);
+        });
 
         // Scroll to the bottom
         chatContainer.scrollTop = chatContainer.scrollHeight;
