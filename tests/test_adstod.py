@@ -63,9 +63,15 @@ def mock_openai_assistant(mocker):
 
 def test_send_message_to_adstod():
     """Test the post adstod route and mock the OpenAI response."""
-    response = client.post("/adstod/start")
+    response = client.post("/adstod/start", json={"message": "Hello"})
     assert response.status_code == 200
-    assert response.json() == {"content": "Test Content"}
+    assert response.json() == {
+        "content": "Test Content",
+        "history": [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Test Content"},
+        ],
+    }
 
 
 def test_adstod_page():
