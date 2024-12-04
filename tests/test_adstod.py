@@ -8,6 +8,12 @@ from app.main import app
 client = TestClient(app)
 
 
+class Thread(BaseModel):
+    """A thread object."""
+
+    id: str
+
+
 class Run(BaseModel):
     """A run object."""
 
@@ -42,7 +48,7 @@ class Text(BaseModel):
 def mock_openai_assistant(mocker):
     """Mock the response from the OpenAI API."""
     mocker.patch(
-        "app.routes.adstod.client.beta.threads.create", return_value={"id": "Test ID"}
+        "app.routes.adstod.client.beta.threads.create", return_value=Thread(id="3421")
     )
     mocker.patch(
         "app.routes.adstod.client.beta.threads.messages.create",
@@ -63,15 +69,22 @@ def mock_openai_assistant(mocker):
 
 def test_send_message_to_adstod():
     """Test the post adstod route and mock the OpenAI response."""
-    response = client.post("/adstod/start", json={"message": "Hello"})
+    response = client.post(
+        "/adstod/start", json={"message": "Hello", "thread_id": "3421_test"}
+    )
     assert response.status_code == 200
     assert response.json() == {
-        "content": "Test Content",
-        "history": [
-            {"role": "user", "content": "Hello"},
-            {"role": "assistant", "content": "Test Content"},
-        ],
+        "message": "Test Content",
+        "thread_id": "3421_test",
     }
+
+
+def test_send_message_to_adstod_without_session_id():
+    """Test the post adstod route without a session id."""
+    response = client.post("/adstod/start", json={"message": "Hello"})
+    assert response.status_code == 200
+    # There should be a thread id in the response
+    assert "thread_id" in response.json()
 
 
 def test_adstod_page():
