@@ -83,7 +83,7 @@ def test_send_message_to_adstod_without_session_id():
     """Test the post adstod route without a session id."""
     response = client.post("/adstod/start", json={"message": "Hello"})
     assert response.status_code == 200
-    # There shuld be a session id in the response
+    # There should be a thread id in the response
     assert "thread_id" in response.json()
 
 
