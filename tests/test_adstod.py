@@ -8,7 +8,7 @@ from app.main import app
 client = TestClient(app)
 
 
-class thread(BaseModel):
+class Thread(BaseModel):
     """A thread object."""
 
     id: str
@@ -48,7 +48,7 @@ class Text(BaseModel):
 def mock_openai_assistant(mocker):
     """Mock the response from the OpenAI API."""
     mocker.patch(
-        "app.routes.adstod.client.beta.threads.create", return_value=thread(id="3421")
+        "app.routes.adstod.client.beta.threads.create", return_value=Thread(id="3421")
     )
     mocker.patch(
         "app.routes.adstod.client.beta.threads.messages.create",

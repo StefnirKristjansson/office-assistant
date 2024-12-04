@@ -25,6 +25,8 @@ chat_history = {}
 
 
 class UserMessage(BaseModel):
+    """A user message object."""
+
     message: str
     thread_id: str = None
 
@@ -36,7 +38,7 @@ async def adstod(request: Request):
 
 
 @router.post("/adstod/start")
-async def adstod_post(user_message: UserMessage, request: Request):
+async def adstod_post(user_message: UserMessage):
     """Starts a thread for the assistant AI."""
     thread_id = user_message.thread_id
     # Start by checking if the thread_id is none
