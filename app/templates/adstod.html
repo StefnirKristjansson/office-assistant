@@ -5,6 +5,11 @@
     <!-- Existing hardcoded messages can be removed if not needed -->
   </div>
 
+  <!-- Typing indicator -->
+  <div id="typing-indicator" class="mb-4 text-gray-500 hidden">
+    Assistant is typing...
+  </div>
+
   <!-- Input area -->
   <form id="chat-form" class="flex">
     <input
@@ -20,6 +25,14 @@
     </button>
   </form>
 </main>
+
+<script>
+  // Clear thread ID on page load
+  window.addEventListener("load", () => {
+    localStorage.removeItem("thread_id");
+    document.cookie = "thread_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="/static/assistant.js"></script>

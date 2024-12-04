@@ -59,9 +59,13 @@ async def adstod_post(user_message: UserMessage):
     if run.status == "completed":
         messages = client.beta.threads.messages.list(thread_id=thread_id)
         data = messages.data
-        message = data[0]
-        text = message.content[0]
-        the_message = text.text.value
+        message_history = []
+        for message in data:
+            text = message.content[0]
+            message_history.append({
+                "role": message.role,
+                "content": text.text.value
+            })
     else:
         return JSONResponse(
             content={"error": "The assistant did not complete the request."},
@@ -69,7 +73,7 @@ async def adstod_post(user_message: UserMessage):
         )
     return JSONResponse(
         content={
-            "message": the_message,
+            "history": message_history,
             "thread_id": thread_id,
         }
     )

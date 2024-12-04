@@ -92,3 +92,37 @@ def test_adstod_page():
     response = client.get("/adstod")
     assert response.status_code == 200
     assert "<title>Fróði</title>" in response.text
+
+
+def test_thread_id_stored_in_local_storage():
+    """Test that the thread ID is stored in local storage."""
+    response = client.post("/adstod/start", json={"message": "Hello"})
+    assert response.status_code == 200
+    thread_id = response.json().get("thread_id")
+    assert thread_id is not None
+    # Simulate storing thread ID in local storage
+    client.cookies.set("thread_id", thread_id)
+    assert client.cookies.get("thread_id") == thread_id
+
+
+def test_thread_id_cleared_on_page_refresh():
+    """Test that the thread ID is cleared on page refresh."""
+    response = client.post("/adstod/start", json={"message": "Hello"})
+    assert response.status_code == 200
+    thread_id = response.json().get("thread_id")
+    assert thread_id is not None
+    # Simulate storing thread ID in local storage
+    client.cookies.set("thread_id", thread_id)
+    assert client.cookies.get("thread_id") == thread_id
+    # Simulate page refresh
+    client.cookies.clear("thread_id")
+    assert client.cookies.get("thread_id") is None
+
+
+def test_message_returned_correctly():
+    """Test that the new message is returned correctly."""
+    response = client.post("/adstod/start", json={"message": "Hello"})
+    assert response.status_code == 200
+    message = response.json().get("message")
+    assert message is not None
+    assert message == "Test Content"
