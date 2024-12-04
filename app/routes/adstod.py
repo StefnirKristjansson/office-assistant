@@ -26,6 +26,7 @@ chat_history = {}
 
 class UserMessage(BaseModel):
     message: str
+    thread_id: str = None
 
 
 @router.get("/adstod")
@@ -37,21 +38,17 @@ async def adstod(request: Request):
 @router.post("/adstod/start")
 async def adstod_post(user_message: UserMessage, request: Request):
     """Starts a thread for the assistant AI."""
-    session_id = request.cookies.get("session_id")
-    if not session_id or session_id not in chat_history:
+    thread_id = user_message.thread_id
+    # Start by checking if the thread_id is none
+    if thread_id is None:
         thread = client.beta.threads.create()
-        thread_id = thread["id"] if isinstance(thread, dict) else thread.id
-        chat_history[session_id] = {"thread_id": thread_id, "messages": []}
-    else:
-        thread_id = chat_history[session_id]["thread_id"]
+        thread_id = thread.id
 
     message = client.beta.threads.messages.create(
         thread_id=thread_id,
         role="user",
         content=user_message.message,
     )
-    chat_history[session_id]["messages"].append({"role": "user", "content": user_message.message})
-
     run = client.beta.threads.runs.create_and_poll(
         thread_id=thread_id,
         assistant_id="asst_rCMbGb73QwhMEvViv4laIoqD",
@@ -63,10 +60,14 @@ async def adstod_post(user_message: UserMessage, request: Request):
         message = data[0]
         text = message.content[0]
         the_message = text.text.value
-        chat_history[session_id]["messages"].append({"role": "assistant", "content": the_message})
     else:
         return JSONResponse(
             content={"error": "The assistant did not complete the request."},
             status_code=500,
         )
-    return JSONResponse(content={"content": the_message, "history": chat_history[session_id]["messages"]})
+    return JSONResponse(
+        content={
+            "message": the_message,
+            "thread_id": thread_id,
+        }
+    )
