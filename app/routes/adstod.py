@@ -7,6 +7,7 @@ from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import re
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -62,6 +63,37 @@ async def adstod_post(user_message: UserMessage):
         message = data[0]
         text = message.content[0]
         the_message = text.text.value
+
+        # Find content inside 【 】 and handle duplicates
+        pattern = r"【.*?†(.*?)】"
+        matches = re.findall(pattern, the_message)
+
+        file_map = {}
+        current_index = 1
+
+        # Create a mapping for files with unique numeric indices
+        for file in matches:
+            if file not in file_map:
+                file_map[file] = current_index
+                current_index += 1
+
+        # Replace references with indices
+        def replace_files_with_indices(match):
+            file_name = match.group(1)
+            return f"【{file_map[file_name]}】"
+
+        text_with_indices = re.sub(
+            r"【.*?†(.*?)】", replace_files_with_indices, the_message
+        )
+
+        # Prepare sources list
+        sources_list = "\n".join(
+            [f"{index}: {file}" for file, index in file_map.items()]
+        )
+
+        # Append sources to the modified message
+        modified_message = f"{text_with_indices}\n\nSources:\n{sources_list}"
+
     else:
         return JSONResponse(
             content={"error": "The assistant did not complete the request."},
@@ -69,7 +101,7 @@ async def adstod_post(user_message: UserMessage):
         )
     return JSONResponse(
         content={
-            "message": the_message,
+            "message": modified_message,
             "thread_id": thread_id,
         }
     )

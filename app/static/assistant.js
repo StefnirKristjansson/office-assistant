@@ -52,7 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
         assistantMessageDiv.classList.add("mb-4");
         assistantMessageDiv.innerHTML = `
           <div class="bg-gray-200 p-4 rounded-lg max-w-lg">
-            <p>${data.message}</p>
+            <div class="whitespace-pre-wrap">
+              ${data.message}
+            </div>
           </div>
         `;
         chatContainer.appendChild(assistantMessageDiv);
