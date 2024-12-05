@@ -11,7 +11,7 @@
       type="text"
       id="message-input"
       name="message"
-      class="flex-grow border border-gray-300 p-2 rounded-l-md"
+      class="flex-grow border border-gray-300 p-4 rounded-l-md"
       placeholder="Type your message..."
       required
     />
@@ -19,6 +19,11 @@
       Send
     </button>
   </form>
+
+  <!-- Spinning icon and text for system thinking -->
+  <div id="thinking-indicator" class="hidden mt-4 p-4 bg-blue-100 text-blue-800 rounded-lg">
+    <i class="fas fa-spinner fa-spin mr-2"></i> The system is thinking... Please wait.
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
