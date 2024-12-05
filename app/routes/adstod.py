@@ -42,7 +42,7 @@ async def adstod_post(user_message: UserMessage):
     """Starts a thread for the assistant AI."""
     thread_id = user_message.thread_id
     # Start by checking if the thread_id is none
-    if thread_id is None:
+    if thread_id is None or thread_id == "":
         thread = client.beta.threads.create()
         thread_id = thread.id
 
