@@ -91,8 +91,11 @@ async def adstod_post(user_message: UserMessage):
             [f"{index}: {file}" for file, index in file_map.items()]
         )
 
-        # Append sources to the modified message
-        modified_message = f"{text_with_indices}\n\nSources:\n{sources_list}"
+        # if there are no sources, don't add the sources list
+        if sources_list == "":
+            modified_message = f"{text_with_indices}"
+        else:
+            modified_message = f"{text_with_indices}\n\nSources:\n{sources_list}"
 
     else:
         return JSONResponse(
