@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatForm = document.getElementById("chat-form");
   const messageInput = document.getElementById("message-input");
   const chatContainer = document.getElementById("chat-container");
+  // When the page loads clear the localStorage
+  localStorage.clear();
 
   chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -9,6 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const userMessage = messageInput.value.trim();
     if (userMessage === "") return;
 
+    let thread_id = localStorage.getItem("thread_id");
+    console.log("Thread ID from localStorage:", thread_id);
+    if (thread_id === null) {
+      thread_id = "";
+    }
     // Display user message
     const userMessageDiv = document.createElement("div");
     userMessageDiv.classList.add("mb-4", "flex", "justify-end");
@@ -29,28 +36,34 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: userMessage }),
+      body: JSON.stringify({ message: userMessage, thread_id: thread_id }),
     })
       .then((response) => response.json())
       .then((data) => {
-        // Display the entire chat history
-        chatContainer.innerHTML = "";
-        data.history.forEach((msg) => {
-          const messageDiv = document.createElement("div");
-          messageDiv.classList.add("mb-4", msg.role === "user" ? "flex" : "justify-end");
-          messageDiv.innerHTML = `
-            <div class="${msg.role === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"} p-4 rounded-lg max-w-md">
-              <p>${msg.content}</p>
-            </div>
-          `;
-          chatContainer.appendChild(messageDiv);
-        });
+        // Display assistant response
+        const assistantMessageDiv = document.createElement("div");
+        assistantMessageDiv.classList.add("mb-4");
+        assistantMessageDiv.innerHTML = `
+          <div class="bg-gray-200 p-4 rounded-lg max-w-md">
+            <p>${data.message}</p>
+          </div>
+        `;
+        chatContainer.appendChild(assistantMessageDiv);
+
+        // Store the thread ID in localStorage
+        if (data.thread_id) {
+          localStorage.setItem("thread_id", data.thread_id);
+          console.log("Thread ID stored in localStorage as:", data.thread_id);
+        } else {
+          console.log("No thread ID received from the backend");
+        }
 
         // Scroll to the bottom
         chatContainer.scrollTop = chatContainer.scrollHeight;
       })
       .catch((error) => {
         console.error("Error:", error);
+
         // Optionally display an error message in the chat
         const errorMessageDiv = document.createElement("div");
         errorMessageDiv.classList.add("mb-4");
