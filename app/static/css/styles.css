@@ -81,3 +81,34 @@ button:hover {
     border-radius: 5px;
     margin-top: 10px;
 }
+
+/* Styles for the spinning icon and text */
+#thinking-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #007bff;
+}
+
+#thinking-indicator .fa-spinner {
+    margin-right: 0.5rem;
+}
+
+/* Styles for the typing indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.typing-indicator .fa-ellipsis-h {
+    margin-right: 0.5rem;
+}
+
+/* Styles for the timestamp */
+.timestamp {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
