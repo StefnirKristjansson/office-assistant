@@ -2,7 +2,7 @@ python-dotenv==1.0.1
 uvicorn==0.32.1
 fastapi==0.115.5
 sqlmodel==0.0.22
-Jinja2==3.1.4
+Jinja2==3.1.5
 python-docx==1.1.2
 python-multipart==0.0.19
 openai==1.55.3
